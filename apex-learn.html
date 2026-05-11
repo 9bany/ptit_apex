@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex — C++ OOP Notes</title>
+<style>
+:root{
+  --bg:#0f1117;--surface:#181b28;--surface2:#1e2235;--border:#272b40;
+  --accent:#7c6af7;--green:#4ecb9e;--orange:#f7a05a;--red:#f76a6a;--blue:#60a5fa;
+  --text:#dde1f0;--muted:#6b7194;--code-bg:#0d0f1a;--tag:#1e2235;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;font-size:15px}
+
+.wrap{display:flex;min-height:100vh}
+.side{width:240px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:0 0 32px}
+.side-logo{padding:22px 18px 18px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.side-logo h1{font-size:17px;font-weight:700;color:var(--accent)}
+.side-logo p{font-size:11px;color:var(--muted);margin-top:3px}
+.side-sec{font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--muted);padding:14px 18px 5px}
+.side a{display:flex;align-items:center;gap:9px;padding:7px 18px;text-decoration:none;
+  color:var(--muted);font-size:13px;border-left:2px solid transparent;transition:.12s}
+.side a:hover,.side a.on{color:var(--text);background:var(--surface2);border-left-color:var(--accent)}
+.side a .n{background:var(--tag);color:var(--accent);font-size:10px;font-weight:700;
+  padding:1px 5px;border-radius:8px;min-width:18px;text-align:center}
+.main{flex:1;max-width:860px;padding:44px 48px;min-width:0}
+
+.hero{background:linear-gradient(135deg,#1b1e30,#14172a);border:1px solid var(--border);
+  border-radius:14px;padding:32px 36px;margin-bottom:44px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-80px;right:-80px;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(124,106,247,.12),transparent 70%);pointer-events:none}
+.hero h1{font-size:26px;font-weight:800;
+  background:linear-gradient(120deg,#a78bfa,#4ecb9e);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.hero p{color:var(--muted);font-size:14px;max-width:480px}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.tag{background:var(--tag);border:1px solid var(--border);font-size:11px;font-weight:600;
+  padding:2px 9px;border-radius:20px;color:var(--accent)}
+.tag.g{color:var(--green)}.tag.o{color:var(--orange)}
+
+.sec{margin-bottom:52px;scroll-margin-top:20px}
+.sec-h{display:flex;align-items:center;gap:12px;margin-bottom:20px;
+  padding-bottom:12px;border-bottom:1px solid var(--border)}
+.sec-n{background:linear-gradient(135deg,var(--accent),var(--green));color:#fff;
+  font-size:11px;font-weight:800;width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-t{font-size:19px;font-weight:700}
+.sec-f{margin-left:auto;font-size:11px;color:var(--muted);background:var(--tag);
+  padding:2px 9px;border-radius:5px;font-family:'Fira Code','Cascadia Code',monospace}
+
+/* code */
+.cw{position:relative;margin:12px 0}
+.cb{position:absolute;top:7px;right:7px;background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted);font-size:11px;padding:2px 9px;border-radius:4px;cursor:pointer;
+  transition:.12s;z-index:2;font-family:sans-serif}
+.cb:hover{color:var(--green);border-color:var(--green)}
+.cb.ok{color:var(--green);border-color:var(--green)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:9px;
+  padding:18px 20px;overflow-x:auto;font-size:13px;line-height:1.7;position:relative}
+pre[data-l]::before{content:attr(data-l);position:absolute;top:7px;right:42px;
+  font-size:10px;color:var(--muted);font-family:monospace;letter-spacing:.8px}
+code{font-family:'Fira Code','Cascadia Code','Consolas',monospace;color:#b8c0d8}
+.kw{color:#a78bfa;font-weight:600}.ty{color:#4ecb9e}.fn{color:#7cb9f7}
+.cm{color:#454d6a;font-style:italic}.st{color:#f7a05a}.nm{color:#f87171}
+p code,li code{background:var(--tag);color:var(--green);padding:1px 5px;border-radius:3px;font-size:12.5px}
+
+/* ── tooltip ── */
+/* t = clickable token, ta = annotated (brighter underline) */
+.t{border-bottom:1px dashed rgba(124,106,247,.5);color:#9d8ff5;cursor:pointer;transition:color .12s}
+.t:hover{color:#fff}
+.ta{border-bottom:2px solid rgba(78,203,158,.6);color:#6ee7c0;cursor:pointer;
+  transition:color .12s;border-radius:2px;padding:0 1px}
+.ta:hover{color:#fff;background:rgba(78,203,158,.12)}
+
+#ttbox{display:none;position:fixed;z-index:9999;background:#181b2e;
+  border:1px solid var(--accent);border-radius:10px;padding:0;max-width:290px;
+  font-size:13px;line-height:1.6;box-shadow:0 8px 28px rgba(0,0,0,.75);pointer-events:none;
+  overflow:hidden}
+#ttbox .tt-head{background:rgba(124,106,247,.15);padding:9px 14px;
+  font-family:monospace;color:var(--green);font-weight:700;font-size:12px;
+  border-bottom:1px solid var(--border)}
+#ttbox .tt-body{padding:10px 14px;color:#ccd}
+#ttbox .tt-eg{padding:0 14px 10px;font-family:monospace;font-size:11.5px;
+  color:var(--orange);background:rgba(0,0,0,.2);margin:0 14px 10px;border-radius:5px;
+  padding:6px 10px}
+#ttbox .tt-foot{font-size:11px;color:var(--muted);padding:6px 14px 9px;
+  border-top:1px solid var(--border)}
+
+.box{border-radius:9px;padding:12px 16px;margin:12px 0;display:flex;gap:11px;
+  align-items:flex-start;font-size:14px;line-height:1.65}
+.bi{font-size:17px;flex-shrink:0;margin-top:1px}
+.box.tip{background:rgba(78,203,158,.07);border:1px solid rgba(78,203,158,.22);color:#8ee8c4}
+.box.warn{background:rgba(247,160,90,.07);border:1px solid rgba(247,160,90,.22);color:#f7c08a}
+.box.err{background:rgba(247,106,106,.07);border:1px solid rgba(247,106,106,.22);color:#f7a0a0}
+.box.info{background:rgba(124,106,247,.07);border:1px solid rgba(124,106,247,.22);color:#b0a7f5}
+
+h3{font-size:14px;font-weight:700;color:var(--green);margin:24px 0 8px;
+  display:flex;align-items:center;gap:7px}
+h3::before{content:'';display:inline-block;width:3px;height:13px;
+  background:var(--green);border-radius:2px}
+p{margin:8px 0}ul,ol{padding-left:22px;margin:6px 0}li{margin:3px 0}
+strong{color:#fff;font-weight:600}
+
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+th{background:var(--surface2);color:var(--muted);font-size:10.5px;font-weight:700;
+  letter-spacing:.7px;text-transform:uppercase;padding:9px 13px;text-align:left;
+  border-bottom:2px solid var(--border)}
+td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.018)}
+
+/* CSS tree */
+.tree-wrap{margin:14px 0;font-family:'Fira Code','Cascadia Code',monospace;font-size:13px}
+.tree-node{position:relative;padding-left:28px}
+.tree-node::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--border)}
+.tree-node:last-child::before{height:14px}
+.tree-node::after{content:'';position:absolute;left:0;top:13px;width:20px;height:1px;background:var(--border)}
+.tree-root{padding-left:0}.tree-root::before,.tree-root::after{display:none}
+.tree-item{display:flex;align-items:baseline;gap:10px;padding:3px 0;line-height:1.5}
+.tree-label{font-weight:700}.tree-desc{color:var(--muted);font-size:12px;font-style:italic}
+.tree-root>.tree-item>.tree-label{color:var(--accent);font-size:14px}
+.c-acc{color:var(--blue)}.c-sav{color:var(--green)}.c-chk{color:var(--orange)}
+.c-mon{color:#e879f9}.c-cur{color:#38bdf8}.c-cnv{color:#fb923c}
+.c-txn{color:#a3e635}.c-log{color:#f472b6}
+
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:14px 16px}
+.card h4{font-size:12px;font-weight:700;letter-spacing:.4px;margin-bottom:8px}
+.card.r h4{color:var(--red)}.card.g h4{color:var(--green)}
+.card pre{margin:0;font-size:12px;padding:10px}
+
+.cl{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.ci{display:flex;align-items:flex-start;gap:10px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;transition:.15s}
+.ci:hover{border-color:rgba(124,106,247,.4)}
+.ci.done{border-color:rgba(78,203,158,.4);background:rgba(78,203,158,.04)}
+.cb2{width:19px;height:19px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:.15s;margin-top:2px}
+.ci.done .cb2{background:var(--green);border-color:var(--green)}
+.cb2 svg{display:none}.ci.done .cb2 svg{display:block}
+.cl-label strong{display:block;font-size:13.5px;font-weight:600;color:var(--text)}
+.cl-label span{font-size:12.5px;color:var(--muted)}
+.cl-apex{font-size:11.5px;color:var(--green);margin-top:4px}.cl-apex::before{content:'→ '}
+.prog-wrap{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));
+  border-radius:3px;transition:width .35s ease}
+
+/* deadlock */
+.dl-scene{background:var(--code-bg);border:1px solid var(--border);border-radius:11px;padding:22px;margin:14px 0}
+.dl-ctrl{display:flex;gap:8px;margin-bottom:18px;align-items:center}
+.dl-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-size:12px;padding:5px 14px;border-radius:5px;cursor:pointer;transition:.12s;font-family:inherit}
+.dl-btn:hover{border-color:var(--accent);color:var(--accent)}
+.dl-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.dl-btn.pri:hover{background:#6a58e0}.dl-btn:disabled{opacity:.4;cursor:default}
+.dl-st{margin-left:auto;font-size:12px;color:var(--muted);font-style:italic}
+.dl-grid{display:grid;grid-template-columns:1fr 110px 1fr;gap:6px;align-items:center;min-height:260px}
+.dl-th{border-radius:9px;padding:14px;text-align:center;border:2px solid var(--border);transition:.4s}
+.dl-th .thl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.dl-th .thn{font-size:14px;font-weight:800;margin-bottom:8px}
+.dl-th .ths{font-size:11px;padding:2px 9px;border-radius:20px;display:inline-block;margin-bottom:6px}
+.dl-th .thd{font-size:11px;color:var(--muted);margin-top:4px}.dl-th .thd span{font-family:monospace}
+.dl-th.idle{background:rgba(124,106,247,.04);border-color:rgba(124,106,247,.15)}
+.dl-th.run{background:rgba(78,203,158,.07);border-color:var(--green);box-shadow:0 0 14px rgba(78,203,158,.12)}
+.dl-th.wait{background:rgba(247,160,90,.07);border-color:var(--orange);animation:pw 1.2s ease infinite}
+.dl-th.dead{background:rgba(247,106,106,.07);border-color:var(--red);animation:pd .8s ease infinite}
+.ths.run{background:rgba(78,203,158,.18);color:var(--green)}
+.ths.wait{background:rgba(247,160,90,.18);color:var(--orange)}
+.ths.dead{background:rgba(247,106,106,.18);color:var(--red)}
+@keyframes pw{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes pd{0%,100%{box-shadow:0 0 0 0 rgba(247,106,106,.35)}50%{box-shadow:0 0 0 8px rgba(247,106,106,0)}}
+.dl-mxs{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.dl-mx{border-radius:7px;padding:9px 11px;text-align:center;border:2px solid var(--border);transition:.4s}
+.dl-mx .ml{font-size:10px;color:var(--muted)}.dl-mx .mn{font-size:12px;font-weight:700;font-family:monospace;margin:3px 0}
+.dl-mx .mo{font-size:10px;color:var(--muted)}.dl-mx.free{background:rgba(255,255,255,.02)}
+.dl-mx.la{background:rgba(124,106,247,.1);border-color:var(--accent)}.dl-mx.la .mo{color:var(--accent)}
+.dl-mx.lb{background:rgba(247,160,90,.1);border-color:var(--orange)}.dl-mx.lb .mo{color:var(--orange)}
+.dl-log{margin-top:14px;background:rgba(0,0,0,.35);border-radius:7px;padding:10px 13px;
+  min-height:60px;max-height:110px;overflow-y:auto;
+  font-family:'Fira Code','Cascadia Code',monospace;font-size:12px;line-height:1.85}
+.dl-log .la{color:var(--accent)}.dl-log .lb{color:var(--orange)}
+.dl-log .lok{color:var(--green)}.dl-log .ler{color:var(--red)}.dl-log .lsy{color:var(--muted)}
+.sol{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.sol-step{display:flex;gap:9px;align-items:center;background:rgba(78,203,158,.05);
+  border:1px solid rgba(78,203,158,.15);border-radius:7px;padding:9px 13px;font-size:13px}
+.sol-n{background:var(--green);color:#000;font-weight:800;font-size:10px;
+  width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.rm{display:flex;flex-direction:column;margin:12px 0}
+.rm-item{display:flex;gap:14px;align-items:flex-start;position:relative}
+.rm-item:not(:last-child)::after{content:'';position:absolute;left:12px;top:28px;
+  width:1px;height:calc(100% - 8px);background:var(--border)}
+.rm-dot{width:26px;height:26px;border-radius:50%;background:var(--surface2);
+  border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:var(--accent);flex-shrink:0;z-index:1}
+.rm-body{padding:2px 0 18px;flex:1}
+.rm-files{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:2px}
+.rm-f{background:var(--tag);color:var(--green);font-size:11px;font-family:monospace;
+  padding:1px 7px;border-radius:3px;border:1px solid var(--border)}
+.rm-d{font-size:13px;color:var(--muted)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:720px){.side{display:none}.main{padding:22px 18px}.tc,.dl-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="ttbox">
+  <div class="tt-head" id="tth"></div>
+  <div class="tt-body" id="ttb"></div>
+  <div class="tt-eg" id="tte" style="display:none"></div>
+  <div class="tt-foot">Click ngoài để đóng</div>
+</div>
+
+<div class="wrap">
+<aside class="side">
+  <div class="side-logo"><h1>⬡ APEX</h1><p>C++ OOP · PTIT · INT1339</p></div>
+  <nav>
+    <div class="side-sec">Tổng quan</div>
+    <a href="#overview"><span class="n">⊞</span>Cấu trúc</a>
+    <a href="#checklist"><span class="n">✓</span>Checklist GV</a>
+    <div class="side-sec">Khái niệm C++</div>
+    <a href="#s1"><span class="n">1</span>enum class</a>
+    <a href="#s2"><span class="n">2</span>Operator Overloading</a>
+    <a href="#s3"><span class="n">3</span>Kế thừa &amp; Đa hình</a>
+    <a href="#s4"><span class="n">4</span>Smart Pointer &amp; STL</a>
+    <a href="#s5"><span class="n">5</span>Mutex &amp; Deadlock</a>
+    <a href="#s6"><span class="n">6</span>atomic &amp; thread</a>
+    <a href="#s7"><span class="n">7</span>Exception Hierarchy</a>
+    <a href="#s8"><span class="n">8</span>RAII</a>
+    <a href="#s9"><span class="n">9</span>Namespace</a>
+    <div class="side-sec">Tham khảo</div>
+    <a href="#roadmap"><span class="n">→</span>Thứ tự đọc</a>
+    <a href="#glossary"><span class="n">§</span>Glossary</a>
+  </nav>
+</aside>
+
+<main class="main">
+
+<div class="hero">
+  <h1>Apex — Ghi chú học C++</h1>
+  <p>Hệ thống ngân hàng đa tiền tệ · OOP · PTIT.<br>
+  Click vào từ khoá <span style="color:var(--green);border-bottom:2px solid rgba(78,203,158,.6);padding:0 2px">màu xanh gạch đôi</span> trong code để xem giải thích từng mảnh.</p>
+  <div class="tags">
+    <span class="tag">C++17</span><span class="tag">OOP</span>
+    <span class="tag g">Thread Safety</span><span class="tag o">Smart Pointer</span>
+    <span class="tag">Operator Overloading</span><span class="tag g">RAII</span>
+  </div>
+</div>
+
+<!-- ════ CHECKLIST ════ -->
+<section class="sec" id="checklist">
+  <div class="sec-h"><div class="sec-n">✓</div><div class="sec-t">Checklist — Yêu cầu INT1339</div></div>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Bấm để đánh dấu hoàn thành — lưu tự động.</p>
+  <div class="cl" id="cl">
+    <div class="ci" data-id="c1" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Khảo sát &amp; Phân tích bài toán</strong><span>Chức năng, đầu vào, đầu ra, ràng buộc</span><div class="cl-apex">Apex: 12 chức năng menu · InputUtils validate input · CurrencyMismatch exception</div></div></div>
+    <div class="ci" data-id="c2" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Thiết kế OOP — lớp, kế thừa, thành viên</strong><span>Mô hình dữ liệu, quan hệ giữa các lớp</span><div class="cl-apex">Apex: Account (base) → SavingsAccount, CheckingAccount · Bank quản lý qua shared_ptr</div></div></div>
+    <div class="ci" data-id="c3" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Tách file .h (khai báo) và .cpp (định nghĩa)</strong><span>Header chứa class declaration, cpp chứa implementation</span><div class="cl-apex">Apex: src/*.cpp + include/apex/*.hpp — repo hiện thiếu header, cần tạo</div></div></div>
+    <div class="ci" data-id="c4" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Comment rõ ràng, nhất quán trong nhóm</strong><span>Mô tả hàm, logic phức tạp, cảnh báo an toàn</span><div class="cl-apex">Apex: comment trên mỗi block quan trọng — deadlock fix, TOCTOU demo, triangulation</div></div></div>
+    <div class="ci" data-id="c5" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Chuẩn bị dữ liệu thử nghiệm</strong><span>Dữ liệu mẫu, kiểm tra miền giá trị, edge cases</span><div class="cl-apex">Apex: SampleData.cpp (5 tài khoản VND/USD/EUR) · DemoScenarios (race condition, tỷ giá âm)</div></div></div>
+    <div class="ci" data-id="c6" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Nguyên tắc an toàn &amp; bảo mật</strong><span>Thread safety, validate input, trạng thái nhất quán</span><div class="cl-apex">Apex: mutex trên mọi shared state · scoped_lock tránh deadlock · exception trước khi modify</div></div></div>
+    <div class="ci" data-id="c7" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Lưu trữ với Git — commit từng mốc</strong><span>Push lên GitHub/GitLab, message rõ ràng</span><div class="cl-apex">Apex: github.com/9bany/ptit_apex · mỗi tính năng = 1 commit riêng</div></div></div>
+    <div class="ci" data-id="c8" onclick="tck(this)"><div class="cb2"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 3.5,8 10,1" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="cl-label"><strong>Ghi rõ môi trường — HĐH, compiler, build</strong><span>Phiên bản, cách dịch, cách chạy, cách debug</span><div class="cl-apex">Apex: README.md · clang++/g++ C++17 · CMake ≥ 3.16 · bash build.sh</div></div></div>
+  </div>
+  <div class="prog-wrap"><span id="pct">0/8 hoàn thành</span><div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div></div>
+</section>
+
+<!-- ════ OVERVIEW ════ -->
+<section class="sec" id="overview">
+  <div class="sec-h"><div class="sec-n">⊞</div><div class="sec-t">Cấu trúc tổng quan</div></div>
+  <div class="tree-wrap">
+    <div class="tree-root">
+      <div class="tree-item"><span class="tree-label" style="color:var(--accent)">main.cpp</span><span class="tree-desc">← điểm vào chương trình</span></div>
+      <div class="tree-node">
+        <div class="tree-item"><span class="tree-label c-acc">Bank</span><span class="tree-desc">← điều phối toàn bộ nghiệp vụ</span></div>
+        <div class="tree-node">
+          <div class="tree-item"><span class="tree-label c-acc">Account</span><span class="tree-desc">← lớp cơ sở trừu tượng (số dư, mutex)</span></div>
+          <div class="tree-node"><div class="tree-item"><span class="tree-label c-sav">SavingsAccount</span><span class="tree-desc">← tiết kiệm · lãi suất · hạn mức rút/ngày</span></div></div>
+          <div class="tree-node"><div class="tree-item"><span class="tree-label c-chk">CheckingAccount</span><span class="tree-desc">← thanh toán · cho phép thấu chi</span></div></div>
+        </div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-mon">Money</span><span class="tree-desc">← giá trị tiền + đơn vị, operator overloading</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-cur">Currency</span><span class="tree-desc">← enum class: VND · USD · EUR · JPY · GBP</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-cnv">CurrencyConverter</span><span class="tree-desc">← bảng tỷ giá, tự đổi khi chuyển khoản</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-txn">Transaction</span><span class="tree-desc">← bản ghi 1 giao dịch (bất biến)</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-log">TransactionLog</span><span class="tree-desc">← nhật ký toàn hệ thống + chỉ mục tài khoản</span></div></div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Lớp</th><th>File</th><th>Vai trò chính</th></tr></thead>
+    <tbody>
+      <tr><td><code>Account</code></td><td><code>Account.cpp</code></td><td>Lớp base — số dư, mutex, deposit/withdraw hai tầng</td></tr>
+      <tr><td><code>SavingsAccount</code></td><td><code>SavingsAccount.cpp</code></td><td>Override doWithdraw: giới hạn rút/ngày + lãi suất</td></tr>
+      <tr><td><code>CheckingAccount</code></td><td><code>CheckingAccount.cpp</code></td><td>Override doWithdraw: cho phép số dư âm đến hạn mức</td></tr>
+      <tr><td><code>Bank</code></td><td><code>Bank.cpp</code></td><td>Quản lý map tài khoản, transfer an toàn deadlock</td></tr>
+      <tr><td><code>Money</code></td><td><code>Money.cpp</code></td><td>Giá trị + đơn vị, nạp chồng +−≥==</td></tr>
+      <tr><td><code>CurrencyConverter</code></td><td><code>CurrencyConverter.cpp</code></td><td>Ma trận tỷ giá, triangulation qua VND</td></tr>
+      <tr><td><code>TransactionLog</code></td><td><code>TransactionLog.cpp</code></td><td>Nhật ký vector + map chỉ mục theo ID tài khoản</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════ 1. enum class ════ -->
+<section class="sec" id="s1">
+  <div class="sec-h"><div class="sec-n">1</div><div class="sec-t">enum class</div><span class="sec-f">Currency.cpp</span></div>
+  <p>Nhóm các hằng số liên quan lại thành 1 kiểu — thay vì dùng số nguyên rời rạc dễ nhầm.</p>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// ❌ enum thường — nguy hiểm</span>
+<span class="cm">// enum Currency { VND, USD };  int x = VND;  // biên dịch được, không báo lỗi!</span>
+
+<span class="cm">// ✅ enum class — an toàn</span>
+<span class="kw">enum class</span> <span class="ta" data-k="Currency_type">Currency</span> { <span class="ta" data-k="enum_val">VND</span>, <span class="ta" data-k="enum_val">USD</span>, <span class="ta" data-k="enum_val">EUR</span>, <span class="ta" data-k="enum_val">JPY</span>, <span class="ta" data-k="enum_val">GBP</span> };
+
+<span class="cm">// Hàm chuyển enum → chuỗi để in ra màn hình</span>
+<span class="ta" data-k="ret_string">std::string</span> <span class="fn">currencyToString</span>(<span class="ta" data-k="pass_by_val">Currency c</span>) {
+    <span class="kw">switch</span> (c) {
+        <span class="kw">case</span> <span class="ta" data-k="enum_access">Currency::VND</span>: <span class="kw">return</span> <span class="st">"VND"</span>;
+        <span class="kw">case</span> <span class="ta" data-k="enum_access">Currency::USD</span>: <span class="kw">return</span> <span class="st">"USD"</span>;
+    }
+    <span class="kw">return</span> <span class="st">"???"</span>;
+}
+
+<span class="cm">// Hàm chuyển chuỗi → enum, ném lỗi nếu không nhận ra</span>
+<span class="ta" data-k="Currency_type">Currency</span> <span class="fn">currencyFromString</span>(<span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> s) {
+    <span class="kw">if</span> (s == <span class="st">"VND"</span>) <span class="kw">return</span> <span class="ta" data-k="enum_access">Currency::VND</span>;
+    <span class="kw">if</span> (s == <span class="st">"USD"</span>) <span class="kw">return</span> <span class="ta" data-k="enum_access">Currency::USD</span>;
+    <span class="ta" data-k="throw_kw">throw</span> <span class="fn">InvalidInput</span>(<span class="st">"Unknown: "</span> + s);
+}</code></pre></div>
+  <div class="box tip"><span class="bi">💡</span><div>Luôn dùng <code>enum class</code> trong C++11 trở lên. <code>enum</code> thường cho phép <code>int x = VND;</code> — compiler không báo lỗi nhưng logic sai.</div></div>
+</section>
+
+<!-- ════ 2. Operator Overloading ════ -->
+<section class="sec" id="s2">
+  <div class="sec-h"><div class="sec-n">2</div><div class="sec-t">Operator Overloading</div><span class="sec-f">Money.cpp</span></div>
+  <p>Dạy C++ cách dùng các ký hiệu <code>+ − == &gt;=</code> với kiểu dữ liệu tự tạo.</p>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// Phân tích từng mảnh của dòng đầu — click vào mảnh nào để hiểu:</span>
+<span class="ta" data-k="op_ret">Money</span> <span class="ta" data-k="op_scope">Money::</span><span class="ta" data-k="op_name_plus">operator+</span>(<span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> <span class="ta" data-k="param_o">o</span>) <span class="ta" data-k="const_method">const</span> {
+    <span class="fn">assertSameCurrency</span>(<span class="ta" data-k="this_kw">*this</span>, o); <span class="cm">// kiểm tra cùng đơn vị tiền</span>
+    <span class="kw">return</span> <span class="ta" data-k="aggregate_init">Money{</span>amount_ + o.amount_, currency_<span class="ta" data-k="aggregate_init">}</span>;
+    <span class="cm">//           ^^^ field của *this  ^^^ field của o (tham số)</span>
+}
+
+<span class="cm">// So sánh — không dùng == với số thực!</span>
+<span class="ta" data-k="op_ret_bool">bool</span> <span class="ta" data-k="op_scope">Money::</span><span class="ta" data-k="op_name_eq">operator==</span>(<span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> <span class="ta" data-k="param_o">o</span>) <span class="ta" data-k="const_method">const</span> {
+    <span class="kw">return</span> <span class="ta" data-k="currency_cmp">currency_ == o.currency_</span>
+        <span class="ta" data-k="logic_and">&amp;&amp;</span> <span class="ta" data-k="fabsl_fn">std::fabsl</span>(amount_ - o.amount_) <span class="ta" data-k="epsilon">&lt; 1e-9L</span>;
+    <span class="cm">//   bước 1: cùng đơn vị?  bước 2: gần nhau đủ để coi là bằng?</span>
+}</code></pre></div>
+  <div class="box err"><span class="bi">⚠️</span><div><strong>Quy tắc vàng:</strong> Không dùng <code>==</code> với số thực. <code>0.1 + 0.2</code> trong máy tính không bằng <code>0.3</code> chính xác do sai số nhị phân. Dùng <code>|a−b| &lt; 1e-9</code> thay thế.</div></div>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// Free operator — viết ngoài class, cho phép: account + money</span>
+<span class="ta" data-k="ret_ref">Account&amp;</span> <span class="ta" data-k="free_op">operator+</span>(<span class="ta" data-k="ret_ref">Account&amp;</span> <span class="ta" data-k="param_dst">dst</span>, <span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> m) {
+    dst.<span class="fn">deposit</span>(m);
+    <span class="kw">return</span> <span class="ta" data-k="return_ref">dst</span>; <span class="cm">// trả về chính dst → có thể chain: acc + m1 + m2</span>
+}</code></pre></div>
+</section>
+
+<!-- ════ 3. Kế thừa & Đa hình ════ -->
+<section class="sec" id="s3">
+  <div class="sec-h"><div class="sec-n">3</div><div class="sec-t">Kế thừa &amp; Đa hình</div><span class="sec-f">Account / SavingsAccount / CheckingAccount</span></div>
+
+  <h3>Constructor và Member Initializer List</h3>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// SavingsAccount KẾ THỪA Account — có thêm field riêng</span>
+<span class="ta" data-k="ctor_class">SavingsAccount</span><span class="ta" data-k="ctor_scope">::</span><span class="ta" data-k="ctor_name">SavingsAccount</span>(
+        <span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> id,
+        <span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> owner,
+        <span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> initialBalance,
+        <span class="kw">long double</span> interestRate,
+        <span class="kw">long double</span> dailyWithdrawCap)
+    <span class="ta" data-k="mil_colon">:</span> <span class="ta" data-k="mil_parent">Account(id, owner, initialBalance)</span>,
+      <span class="ta" data-k="mil_field">interestRate_(interestRate)</span>,
+      <span class="ta" data-k="mil_field">dailyWithdrawCap_(dailyWithdrawCap)</span>,
+      <span class="ta" data-k="mil_field">withdrawnToday_(0.0L)</span> <span class="ta" data-k="empty_body">{}</span></code></pre></div>
+
+  <h3>Hai tầng method — tại sao cần tách?</h3>
+  <div class="tc">
+    <div class="card g">
+      <h4>✓ PUBLIC — có lock (gọi từ ngoài)</h4>
+<pre><code><span class="kw">void</span> Account::<span class="fn">deposit</span>(<span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> m) {
+  <span class="ta" data-k="lock_guard_cls">std::lock_guard</span><span class="ta" data-k="template_arg">&lt;std::mutex&gt;</span> <span class="ta" data-k="lock_var">lk</span>(<span class="ta" data-k="mtx_member">mtx_</span>);
+  <span class="fn">doDeposit</span>(m);
+} <span class="cm">// lk bị hủy → mutex tự mở</span></code></pre>
+    </div>
+    <div class="card r">
+      <h4>⚙ PROTECTED — không lock (nội bộ)</h4>
+<pre><code><span class="kw">void</span> Account::<span class="fn">doDeposit</span>(<span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> m) {
+  <span class="cm">// mutex đã giữ bởi deposit()</span>
+  balance_ = <span class="ta" data-k="aggregate_init">Money{</span>
+    balance_.<span class="fn">amount</span>() + m.<span class="fn">amount</span>(),
+    balance_.<span class="fn">currency</span>()
+  <span class="ta" data-k="aggregate_init">}</span>;
+}</code></pre>
+    </div>
+  </div>
+  <div class="box warn"><span class="bi">🔒</span><div>Nếu cả hai đều lock cùng mutex: <code>deposit()</code> lock → gọi <code>doDeposit()</code> → cũng lock → <strong>deadlock ngay</strong>. <code>std::mutex</code> không thể lock 2 lần từ cùng 1 thread.</div></div>
+
+  <h3>Override — đa hình thực tế</h3>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// SavingsAccount: thêm giới hạn rút theo ngày</span>
+<span class="kw">void</span> <span class="ta" data-k="override_class">SavingsAccount</span><span class="ta" data-k="scope_op">::</span><span class="ta" data-k="override_fn">doWithdraw</span>(<span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> m) <span class="ta" data-k="override_kw">override</span> {
+    <span class="kw">if</span> (<span class="ta" data-k="withdrawn_today">withdrawnToday_</span> + m.<span class="fn">amount</span>() <span class="ta" data-k="gt_op">&gt;</span> <span class="ta" data-k="daily_cap">dailyWithdrawCap_</span>)
+        <span class="ta" data-k="throw_kw">throw</span> <span class="fn">InsufficientFunds</span>(<span class="st">"Vuot han muc rut trong ngay"</span>);
+    <span class="kw">if</span> (balance_.<span class="fn">amount</span>() <span class="ta" data-k="lt_op">&lt;</span> m.<span class="fn">amount</span>())
+        <span class="ta" data-k="throw_kw">throw</span> <span class="fn">InsufficientFunds</span>(<span class="st">"So du khong du"</span>);
+    balance_        = <span class="ta" data-k="aggregate_init">Money{</span>balance_.<span class="fn">amount</span>() - m.<span class="fn">amount</span>(), balance_.<span class="fn">currency</span>()<span class="ta" data-k="aggregate_init">}</span>;
+    <span class="ta" data-k="withdrawn_today">withdrawnToday_</span> <span class="ta" data-k="plus_assign">+=</span> m.<span class="fn">amount</span>(); <span class="cm">// cộng dồn hôm nay đã rút bao nhiêu</span>
+}
+
+<span class="cm">// CheckingAccount: cho phép số dư âm đến hạn mức</span>
+<span class="kw">void</span> <span class="ta" data-k="override_class2">CheckingAccount</span><span class="ta" data-k="scope_op">::</span><span class="ta" data-k="override_fn">doWithdraw</span>(<span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> m) <span class="ta" data-k="override_kw">override</span> {
+    <span class="kw">long double</span> <span class="ta" data-k="after_var">after</span> = balance_.<span class="fn">amount</span>() - m.<span class="fn">amount</span>();
+    <span class="kw">if</span> (<span class="ta" data-k="after_var">after</span> <span class="ta" data-k="lt_op">&lt;</span> <span class="ta" data-k="neg_overdraft">-overdraftLimit_</span>)
+        <span class="ta" data-k="throw_kw">throw</span> <span class="fn">OverdraftExceeded</span>(<span class="st">"Vuot han muc thu chi"</span>);
+    balance_ = <span class="ta" data-k="aggregate_init">Money{</span><span class="ta" data-k="after_var">after</span>, balance_.<span class="fn">currency</span>()<span class="ta" data-k="aggregate_init">}</span>;
+}</code></pre></div>
+  <div class="box info"><span class="bi">💬</span><div>Cả hai đều override <code>doWithdraw()</code>. Khi <code>Bank</code> gọi qua con trỏ <code>Account*</code>, C++ tự gọi đúng version — đây chính là <strong>đa hình (polymorphism)</strong>.</div></div>
+</section>
+
+<!-- ════ 4. Smart Pointer & STL ════ -->
+<section class="sec" id="s4">
+  <div class="sec-h"><div class="sec-n">4</div><div class="sec-t">Smart Pointer &amp; STL</div><span class="sec-f">Bank.cpp</span></div>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// Khai báo map lưu tất cả tài khoản</span>
+<span class="ta" data-k="std_map">std::map</span><span class="ta" data-k="map_kv">&lt;std::string, std::shared_ptr&lt;Account&gt;&gt;</span> <span class="ta" data-k="accounts_field">accounts_</span>;
+<span class="cm">//  ^cấu trúc key-value  ^key: ID    ^value: smart pointer đến Account</span>
+
+<span class="cm">// Tạo tài khoản mới, lưu vào map</span>
+accounts_[id] = <span class="ta" data-k="make_shared_fn">std::make_shared</span><span class="ta" data-k="make_shared_type">&lt;SavingsAccount&gt;</span>(id, owner, balance, rate, cap);
+<span class="cm">//               ^^^^ tạo object trên heap, bọc trong shared_ptr tự động</span>
+
+<span class="cm">// Duyệt tất cả tài khoản — C++17 structured binding</span>
+<span class="kw">for</span> (<span class="ta" data-k="auto_kw">auto</span><span class="ta" data-k="const_ref">&amp;</span> <span class="ta" data-k="structured_bind">[id, acc]</span> : <span class="ta" data-k="accounts_field">accounts_</span>) {
+    acc<span class="ta" data-k="arrow_op">-&gt;</span><span class="fn">display</span>(os); <span class="cm">// acc là shared_ptr, -> truy cập method của Account</span>
+}</code></pre></div>
+  <table>
+    <thead><tr><th>Pointer</th><th>Dùng khi</th><th>Tự giải phóng</th></tr></thead>
+    <tbody>
+      <tr><td><code>unique_ptr&lt;T&gt;</code></td><td>Chỉ 1 chủ sở hữu</td><td>Khi ra khỏi scope</td></tr>
+      <tr><td><code>shared_ptr&lt;T&gt;</code></td><td>Nhiều nơi cùng giữ</td><td>Khi count về 0</td></tr>
+      <tr><td><code>T* (raw)</code></td><td>Chỉ quan sát, không sở hữu</td><td>Không tự giải phóng</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════ 5. Mutex & Deadlock ════ -->
+<section class="sec" id="s5">
+  <div class="sec-h"><div class="sec-n">5</div><div class="sec-t">Mutex &amp; Deadlock</div><span class="sec-f">Bank.cpp</span></div>
+
+  <div class="dl-scene">
+    <div class="dl-ctrl">
+      <button class="dl-btn pri" id="dlpb" onclick="dlPlay()">▶ Chạy demo</button>
+      <button class="dl-btn" onclick="dlReset()">↺ Reset</button>
+      <span class="dl-st" id="dlst">Nhấn ▶ để xem deadlock xảy ra từng bước</span>
+    </div>
+    <div class="dl-grid">
+      <div class="dl-th idle" id="dta"><div class="thl">Thread A</div><div class="thn" style="color:var(--accent)">Terminal-1</div><div class="ths" id="tas" style="background:rgba(124,106,247,.18);color:var(--accent)">IDLE</div><div class="thd">Giữ: <span id="tah">—</span></div><div class="thd">Chờ: <span id="taw">—</span></div></div>
+      <div class="dl-mxs">
+        <div class="dl-mx free" id="dm1"><div class="ml">MUTEX</div><div class="mn">mtx_TK1</div><div class="mo" id="m1o">Tự do</div></div>
+        <div class="dl-mx free" id="dm2"><div class="ml">MUTEX</div><div class="mn">mtx_TK2</div><div class="mo" id="m2o">Tự do</div></div>
+      </div>
+      <div class="dl-th idle" id="dtb"><div class="thl">Thread B</div><div class="thn" style="color:var(--orange)">Terminal-2</div><div class="ths" id="tbs" style="background:rgba(247,160,90,.18);color:var(--orange)">IDLE</div><div class="thd">Giữ: <span id="tbh">—</span></div><div class="thd">Chờ: <span id="tbw">—</span></div></div>
+    </div>
+    <div class="dl-log" id="dllog"><span class="lsy">// Log sự kiện...</span></div>
+  </div>
+
+  <div class="box err"><span class="bi">💀</span><div>
+    A chuyển TK1→TK2, B chuyển TK2→TK1 cùng lúc:<br>
+    · A lock mtx_TK1 ✓ → chờ mtx_TK2 (B đang giữ) ⏳<br>
+    · B lock mtx_TK2 ✓ → chờ mtx_TK1 (A đang giữ) ⏳<br>
+    → <strong>Vòng chờ tròn — chương trình treo mãi</strong>
+  </div></div>
+
+  <h3>Giải pháp: lock theo thứ tự cố định</h3>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="kw">void</span> Bank::<span class="fn">transfer</span>(<span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> srcId,
+                    <span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> dstId,
+                    <span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> amount) {
+
+    <span class="ta" data-k="op_param">Account</span><span class="ta" data-k="raw_ptr">*</span> first  = srcPtr.<span class="ta" data-k="get_fn">get()</span>;
+    <span class="ta" data-k="op_param">Account</span><span class="ta" data-k="raw_ptr">*</span> second = dstPtr.<span class="ta" data-k="get_fn">get()</span>;
+    <span class="kw">if</span> (srcId <span class="ta" data-k="gt_op">&gt;</span> dstId) <span class="ta" data-k="std_swap">std::swap</span>(first, second);
+    <span class="cm">//  ^^^ nếu srcId > dstId, đổi chỗ → luôn lock ID nhỏ hơn trước</span>
+
+    <span class="ta" data-k="scoped_lock_cls">std::scoped_lock</span> <span class="ta" data-k="lock_var">lock</span>(first<span class="ta" data-k="arrow_op">-&gt;</span><span class="fn">mutex</span>(), second<span class="ta" data-k="arrow_op">-&gt;</span><span class="fn">mutex</span>());
+    <span class="cm">//  ^^^ lock CẢ HAI cùng lúc, tự mở khi ra scope</span>
+
+    <span class="ta" data-k="op_param">Money</span> converted = converter_.<span class="fn">convert</span>(amount, dstPtr<span class="ta" data-k="arrow_op">-&gt;</span>balance_.<span class="fn">currency</span>());
+    srcPtr<span class="ta" data-k="arrow_op">-&gt;</span><span class="fn">doWithdraw</span>(amount);   <span class="cm">// nếu throw → dstPtr chưa bị sửa</span>
+    dstPtr<span class="ta" data-k="arrow_op">-&gt;</span><span class="fn">doDeposit</span>(converted); <span class="cm">// chỉ chạy nếu rút thành công</span>
+}</code></pre></div>
+  <div class="sol">
+    <div class="sol-step"><div class="sol-n">1</div>Luôn lock mutex theo thứ tự ID → không thể có vòng chờ tròn</div>
+    <div class="sol-step"><div class="sol-n">2</div><code>scoped_lock</code> lock cả 2 nguyên tử — nếu 1 không được thì nhả cái kia</div>
+    <div class="sol-step"><div class="sol-n">3</div>Rút trước → nếu fail thì nạp không chạy → số dư luôn nhất quán</div>
+  </div>
+</section>
+
+<!-- ════ 6. atomic & thread ════ -->
+<section class="sec" id="s6">
+  <div class="sec-h"><div class="sec-n">6</div><div class="sec-t">std::atomic &amp; std::thread</div><span class="sec-f">IdGenerator · DemoScenarios</span></div>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// atomic&lt;T&gt;: biến thread-safe không cần mutex</span>
+<span class="ta" data-k="atomic_cls">std::atomic</span><span class="ta" data-k="atomic_type">&lt;int&gt;</span> IdGenerator::<span class="ta" data-k="static_member">accountCounter_</span>{<span class="nm">1</span>};
+
+<span class="ta" data-k="ret_string">std::string</span> IdGenerator::<span class="fn">nextAccountId</span>() {
+    <span class="kw">return</span> <span class="fn">format</span>(<span class="st">"ACC-"</span>, <span class="ta" data-k="static_member">accountCounter_</span><span class="ta" data-k="atomic_inc">++</span>);
+    <span class="cm">//                      ^^^ read + add 1 + write — nguyên tử, thread-safe</span>
+}</code></pre></div>
+  <div class="tc">
+    <div class="card r">
+      <h4>✗ Race condition (không mutex)</h4>
+<pre><code><span class="kw">if</span> (balance >= amount) {
+  <span class="cm">// A và B đều qua đây!</span>
+  sleep_for(<span class="nm">50ms</span>);
+  balance -= amount;
+  <span class="cm">// Cả 2 rút → âm tiền</span>
+}</code></pre>
+    </div>
+    <div class="card g">
+      <h4>✓ An toàn — có mutex</h4>
+<pre><code><span class="ta" data-k="atomic_cls">std::atomic</span><span class="ta" data-k="atomic_type">&lt;bool&gt;</span> go{<span class="kw">false</span>};
+std::thread t1(tryWithdraw);
+std::thread t2(tryWithdraw);
+go = <span class="kw">true</span>; <span class="cm">// cả 2 bắt đầu</span>
+t1.<span class="ta" data-k="join_fn">join</span>(); t2.<span class="ta" data-k="join_fn">join</span>();</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════ 7. Exception ════ -->
+<section class="sec" id="s7">
+  <div class="sec-h"><div class="sec-n">7</div><div class="sec-t">Exception Hierarchy</div><span class="sec-f">Errors.hpp</span></div>
+  <div class="tree-wrap">
+    <div class="tree-root">
+      <div class="tree-item"><span class="tree-label" style="color:var(--muted)">std::exception</span></div>
+      <div class="tree-node">
+        <div class="tree-item"><span class="tree-label" style="color:var(--accent)">ApexError</span><span class="tree-desc">← base cho mọi lỗi hệ thống</span></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-sav">InsufficientFunds</span><span class="tree-desc">← số dư không đủ</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-sav">OverdraftExceeded</span><span class="tree-desc">← vượt hạn mức thấu chi</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-chk">CurrencyMismatch</span><span class="tree-desc">← sai đơn vị tiền tệ</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-chk">InvalidInput</span><span class="tree-desc">← input không hợp lệ</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-chk">InvalidRate</span><span class="tree-desc">← tỷ giá âm hoặc bằng 0</span></div></div>
+        <div class="tree-node"><div class="tree-item"><span class="tree-label c-chk">AccountNotFound</span><span class="tree-desc">← không tìm thấy tài khoản</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// Bắt từ CỤ THỂ → TỔNG QUÁT</span>
+<span class="ta" data-k="try_kw">try</span> {
+    bank.<span class="fn">transfer</span>(src, dst, money);
+} <span class="ta" data-k="catch_kw">catch</span> (<span class="kw">const</span> <span class="ta" data-k="catch_specific">InsufficientFunds</span><span class="ta" data-k="const_ref">&amp;</span> e) {
+    std::cout &lt;&lt; <span class="st">"So du khong du: "</span> &lt;&lt; e.<span class="fn">what</span>();
+} <span class="ta" data-k="catch_kw">catch</span> (<span class="kw">const</span> <span class="ta" data-k="catch_general">ApexError</span><span class="ta" data-k="const_ref">&amp;</span> e) {
+    std::cout &lt;&lt; <span class="st">"Loi he thong: "</span> &lt;&lt; e.<span class="fn">what</span>();
+} <span class="ta" data-k="catch_kw">catch</span> (<span class="kw">const</span> std::exception<span class="ta" data-k="const_ref">&amp;</span> e) { <span class="cm">// lưới cuối</span>
+    std::cout &lt;&lt; <span class="st">"Loi: "</span> &lt;&lt; e.<span class="fn">what</span>();
+}</code></pre></div>
+</section>
+
+<!-- ════ 8. RAII ════ -->
+<section class="sec" id="s8">
+  <div class="sec-h"><div class="sec-n">8</div><div class="sec-t">RAII — Quản lý tài nguyên tự động</div><span class="sec-f">Account.cpp</span></div>
+  <p><strong>RAII</strong>: tài nguyên được giải phóng <em>tự động</em> khi object ra khỏi scope — kể cả khi có exception.</p>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="kw">void</span> Account::<span class="fn">deposit</span>(<span class="kw">const</span> <span class="ta" data-k="op_param">Money</span><span class="ta" data-k="const_ref">&amp;</span> m) {
+    <span class="ta" data-k="lock_guard_cls">std::lock_guard</span><span class="ta" data-k="template_arg">&lt;std::mutex&gt;</span> <span class="ta" data-k="lock_var">lock</span>(<span class="ta" data-k="mtx_member">mtx_</span>);
+    <span class="cm">//  ↑ Constructor gọi mtx_.lock()</span>
+    <span class="fn">doDeposit</span>(m);
+} <span class="cm">// ← Destructor gọi mtx_.unlock() TỰ ĐỘNG — dù có throw hay không</span>
+  <span class="cm">// Không cần try/finally như Java!</span></code></pre></div>
+  <table>
+    <thead><tr><th>Tài nguyên</th><th>RAII wrapper</th><th>Giải phóng khi</th></tr></thead>
+    <tbody>
+      <tr><td>Mutex</td><td><code>lock_guard</code> / <code>scoped_lock</code></td><td>Ra khỏi scope <code>{ }</code></td></tr>
+      <tr><td>Heap memory</td><td><code>shared_ptr</code> / <code>unique_ptr</code></td><td>Reference count = 0</td></tr>
+      <tr><td>File handle</td><td><code>std::fstream</code></td><td>Object bị hủy</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════ 9. Namespace ════ -->
+<section class="sec" id="s9">
+  <div class="sec-h"><div class="sec-n">9</div><div class="sec-t">Namespace</div><span class="sec-f">InputUtils · SampleData</span></div>
+  <div class="cw"><button class="cb" onclick="cp(this)">copy</button>
+<pre data-l="cpp"><code><span class="cm">// namespace nhóm các hàm liên quan, tránh trùng tên</span>
+<span class="ta" data-k="ns_kw">namespace</span> <span class="ta" data-k="ns_name">InputUtils</span> {
+    <span class="kw">int</span>         <span class="fn">readInt</span>(<span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> prompt, <span class="kw">int</span> lo, <span class="kw">int</span> hi);
+    <span class="kw">long double</span> <span class="fn">readAmount</span>(<span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> prompt);
+    <span class="ta" data-k="ret_string">std::string</span> <span class="fn">readNonEmpty</span>(<span class="kw">const</span> <span class="ta" data-k="ret_string">std::string</span><span class="ta" data-k="const_ref">&amp;</span> prompt);
+} <span class="cm">// không có dấu ; sau namespace</span>
+
+<span class="cm">// Gọi bằng :: — rõ ràng hàm đến từ đâu</span>
+<span class="kw">int</span> choice = <span class="ta" data-k="ns_name">InputUtils</span><span class="ta" data-k="ns_access">::</span><span class="fn">readInt</span>(<span class="st">"Lua chon: "</span>, <span class="nm">0</span>, <span class="nm">12</span>);</code></pre></div>
+</section>
+
+<!-- ════ ROADMAP ════ -->
+<section class="sec" id="roadmap">
+  <div class="sec-h"><div class="sec-n">→</div><div class="sec-t">Thứ tự đọc code</div></div>
+  <div class="rm">
+    <div class="rm-item"><div class="rm-dot">1</div><div class="rm-body"><div class="rm-files"><span class="rm-f">Currency.cpp</span><span class="rm-f">Money.cpp</span></div><div class="rm-d">Dữ liệu cơ bản — enum class, operator overloading, epsilon</div></div></div>
+    <div class="rm-item"><div class="rm-dot">2</div><div class="rm-body"><div class="rm-files"><span class="rm-f">Account.cpp</span><span class="rm-f">SavingsAccount.cpp</span><span class="rm-f">CheckingAccount.cpp</span></div><div class="rm-d">OOP cốt lõi — kế thừa, override, mutex, hai tầng method</div></div></div>
+    <div class="rm-item"><div class="rm-dot">3</div><div class="rm-body"><div class="rm-files"><span class="rm-f">IdGenerator.cpp</span></div><div class="rm-d">std::atomic, static member, thread-safe counter</div></div></div>
+    <div class="rm-item"><div class="rm-dot">4</div><div class="rm-body"><div class="rm-files"><span class="rm-f">Transaction.cpp</span><span class="rm-f">TransactionLog.cpp</span></div><div class="rm-d">chrono timestamp, vector + map chỉ mục</div></div></div>
+    <div class="rm-item"><div class="rm-dot">5</div><div class="rm-body"><div class="rm-files"><span class="rm-f">CurrencyConverter.cpp</span></div><div class="rm-d">std::map với pair key, lambda, triangulation tỷ giá</div></div></div>
+    <div class="rm-item"><div class="rm-dot">6</div><div class="rm-body"><div class="rm-files"><span class="rm-f">Bank.cpp</span></div><div class="rm-d">shared_ptr, scoped_lock, giải pháp deadlock — quan trọng nhất</div></div></div>
+    <div class="rm-item"><div class="rm-dot">7</div><div class="rm-body"><div class="rm-files"><span class="rm-f">DemoScenarios.cpp</span></div><div class="rm-d">std::thread, atomic flag, race condition</div></div></div>
+    <div class="rm-item"><div class="rm-dot">8</div><div class="rm-body"><div class="rm-files"><span class="rm-f">InputUtils.cpp</span><span class="rm-f">Menu.cpp</span><span class="rm-f">main.cpp</span></div><div class="rm-d">namespace, vòng lặp menu, xử lý input</div></div></div>
+  </div>
+</section>
+
+<!-- ════ GLOSSARY ════ -->
+<section class="sec" id="glossary">
+  <div class="sec-h"><div class="sec-n">§</div><div class="sec-t">Glossary — std:: quan trọng</div></div>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Click vào tên để xem giải thích.</p>
+  <table id="gtable"><thead><tr><th>Tên</th><th>Tóm tắt</th><th>Dùng trong Apex</th></tr></thead><tbody></tbody></table>
+</section>
+
+</main>
+</div>
+
+<script>
+// ── Tooltip dictionary ──
+// Mỗi key ứng với 1 data-k trong HTML
+// h = header (tên), b = body (giải thích), e = ví dụ code, f = ghi chú thêm
+const TT = {
+  // ── Kiểu dữ liệu ──
+  ret_string:   {h:"std::string", b:"Chuỗi ký tự. Tự quản lý bộ nhớ, không cần lo buffer. Truyền bằng const& để không copy.", e:'std::string s = "hello";', f:"Header: <string>"},
+  op_param:     {h:"ClassName (tham số / kiểu trả về)", b:"Tên class dùng làm kiểu. Có thể là kiểu trả về (trước tên hàm) hoặc kiểu tham số (trong ngoặc).", e:"Money result = a + b;"},
+  op_ret:       {h:"Money (kiểu trả về)", b:"Hàm này TRẢ VỀ một object Money mới. Không phải sửa Money hiện tại — tạo cái mới rồi trả về.", e:"Money c = a + b; // c là object mới"},
+  op_ret_bool:  {h:"bool (kiểu trả về)", b:"Hàm trả về true hoặc false. Dùng cho các toán tử so sánh như ==, !=, <, >.", e:"if (a == b) { ... }"},
+  ret_ref:      {h:"Account& (tham chiếu trả về)", b:"Trả về THAM CHIẾU đến object — không tạo bản sao. Cho phép viết chuỗi: acc + m1 + m2.", e:"Account& ref = acc; // cùng object"},
+
+  // ── Tham chiếu & const ──
+  const_ref:    {h:"& (tham chiếu)", b:"Truyền tham chiếu — không copy dữ liệu vào hàm. Kết hợp với const ở trước = chỉ đọc, không sửa được. Hiệu quả với object lớn.", e:"void f(const Money& m) // không copy Money"},
+  const_method: {h:"const (sau dấu )", b:"Method này CAM KẾT không sửa bất kỳ field nào của object. Compiler báo lỗi nếu vô tình sửa. Có thể gọi trên const object.", e:"const Account a; a.balance(); // OK vì balance() là const"},
+  param_o:      {h:"o (tham số)", b:"Tên tham số — convention hay dùng 'o' cho 'other' (object kia). Truy cập field của o bằng o.field_.", e:"amount_ + o.amount_ // field của *this + field của o"},
+  param_dst:    {h:"dst (tham số)", b:"Tên tham số — 'dst' = destination (tài khoản đích). Tham chiếu không const → hàm có thể sửa giá trị.", e:"dst.deposit(m); // sửa dst trực tiếp"},
+
+  // ── Toán tử & tên hàm ──
+  op_scope:     {h:"Money:: (scope resolution)", b:"Chỉ định hàm này THUỘC class Money. Viết ngoài class thì phải ghi rõ. Nếu không có :: thì là hàm tự do.", e:"Money::operator+ // hàm operator+ của class Money"},
+  scope_op:     {h:":: (scope resolution operator)", b:"Dùng để truy cập thành viên của class, namespace, hoặc enum. A::B nghĩa là 'B bên trong A'.", e:"Currency::VND\nstd::string\nInputUtils::readInt"},
+  op_name_plus: {h:"operator+ (tên hàm)", b:"Đây là hàm đặc biệt — khi viết a + b, C++ thực ra gọi hàm này. Tên luôn là operator theo sau ký hiệu.", e:"a + b  ←→  a.operator+(b)"},
+  op_name_eq:   {h:"operator== (tên hàm)", b:"Hàm cho phép dùng == giữa 2 Money. Nếu không định nghĩa, C++ không biết cách so sánh class tự tạo.", e:"if (m1 == m2) ←→ if (m1.operator==(m2))"},
+  free_op:      {h:"operator+ (free function)", b:"Viết NGOÀI class — cho phép: account + money (Account ở bên trái). Nếu viết trong class thì Money phải ở bên trái.", e:"account + money // gọi free operator+"},
+  this_kw:      {h:"*this", b:"'this' là con trỏ ẩn trỏ vào object hiện tại. '*this' là bản thân object đó. Dùng khi cần truyền chính mình làm tham số.", e:"assertSameCurrency(*this, o)\n// truyền object hiện tại"},
+  return_ref:   {h:"return dst (trả về tham chiếu)", b:"Trả về chính dst (không phải copy). Caller nhận được tham chiếu đến dst gốc, cho phép chain: acc + m1 + m2.", e:"(acc + m1) + m2 // chain được"},
+
+  // ── Aggregate init & field ──
+  aggregate_init:{h:"ClassName{ ... } (aggregate init)", b:"Tạo object mới bằng cách liệt kê giá trị các field theo thứ tự. Ngắn gọn hơn gọi constructor tường minh.", e:"Money{1000.0L, Currency::VND}\n// tạo Money mới"},
+  currency_cmp: {h:"currency_ == o.currency_", b:"So sánh field currency_ của *this với currency_ của o. Vì Currency là enum, dùng == trực tiếp được (không có sai số như số thực).", e:"if (a.currency_ == b.currency_)"},
+  logic_and:    {h:"&& (logic AND)", b:"Trả về true chỉ khi CẢ HAI vế đều true. Đặc biệt: nếu vế trái false, vế phải không được đánh giá (short-circuit).", e:"A && B // false nếu A false (B không chạy)"},
+  fabsl_fn:     {h:"std::fabsl(x)", b:"Giá trị tuyệt đối của long double. Dùng thay vì == khi so sánh số thực vì số thực có sai số nhị phân.", e:"fabsl(0.1+0.2 - 0.3) < 1e-9 // đúng!\n0.1+0.2 == 0.3 // sai!"},
+  epsilon:      {h:"< 1e-9L (epsilon)", b:"1e-9 = 0.000000001. Nếu hiệu tuyệt đối < epsilon, coi như bằng nhau. L ở cuối = kiểu long double.", e:"fabsl(a - b) < 1e-9L\n// 'đủ gần' để coi là bằng"},
+
+  // ── Constructor & MIL ──
+  ctor_class:   {h:"SavingsAccount (tên class)", b:"Phần trước :: trong constructor — tên của class đang định nghĩa constructor. Bắt buộc khi viết ngoài class.", e:"SavingsAccount::SavingsAccount(...)"},
+  ctor_scope:   {h:":: trong constructor", b:"Tách class name khỏi constructor name. SavingsAccount::SavingsAccount nghĩa là 'constructor của class SavingsAccount'.", e:"ClassName::ClassName(...) { }"},
+  ctor_name:    {h:"SavingsAccount (constructor)", b:"Constructor — hàm đặc biệt chạy khi tạo object. Tên giống class, không có kiểu trả về.", e:"SavingsAccount acc(...); // gọi ở đây"},
+  mil_colon:    {h:": (Member Initializer List)", b:"Dấu : sau ) bắt đầu danh sách khởi tạo field. Chạy TRƯỚC thân {}. Hiệu quả hơn gán trong thân vì không tạo rồi gán.", e:": field1(val1), field2(val2) { }"},
+  mil_parent:   {h:"Account(...) (gọi constructor cha)", b:"Gọi constructor của lớp cha trước. PHẢI làm trong MIL, không được làm trong thân {}. Lớp cha được khởi tạo trước.", e:": Account(id, owner, balance) // cha trước"},
+  mil_field:    {h:"fieldName_(value) (khởi tạo field)", b:"Khởi tạo field trực tiếp bằng giá trị. Hiệu quả hơn: fieldName_ = value trong thân {} (tránh tạo rồi gán).", e:": interestRate_(rate) // khởi tạo ngay"},
+  empty_body:   {h:"{} (thân rỗng)", b:"Constructor không cần làm gì thêm sau khi MIL đã khởi tạo hết. Thân rỗng hợp lệ.", e:"Constructor(...) : a(x), b(y) {} // OK"},
+
+  // ── Override & kế thừa ──
+  override_class: {h:"SavingsAccount:: (override)", b:"Định nghĩa method của SavingsAccount — override method ảo của Account cha.", e:"SavingsAccount::doWithdraw override Account::doWithdraw"},
+  override_class2:{h:"CheckingAccount:: (override)", b:"Định nghĩa method của CheckingAccount — cùng tên doWithdraw nhưng logic khác SavingsAccount.", e:"Mỗi class con có doWithdraw riêng"},
+  override_fn:  {h:"doWithdraw (method bị override)", b:"Tên method giống hệt ở lớp cha Account. C++ sẽ tự gọi đúng version tùy loại object — đây là polymorphism.", e:"Account* p = new SavingsAccount(...);\np->doWithdraw(m); // gọi SavingsAccount::doWithdraw"},
+  override_kw:  {h:"override (từ khoá C++11)", b:"Báo compiler đây là override của method ảo ở lớp cha. Compiler báo lỗi nếu cha không có method này — tránh typo.", e:"void doWithdraw(...) override\n// lỗi nếu cha không có doWithdraw"},
+  withdrawn_today:{h:"withdrawnToday_ (field)", b:"Field riêng của SavingsAccount — lưu tổng đã rút hôm nay. Không có trong Account cha hay CheckingAccount. Trailing _ = member variable.", e:"withdrawnToday_ += amount; // cộng dồn"},
+  daily_cap:    {h:"dailyWithdrawCap_ (field)", b:"Hạn mức rút tối đa mỗi ngày. Nếu withdrawnToday_ + amount > cap thì từ chối.", e:"if (withdrawn + amount > cap) throw..."},
+  plus_assign:  {h:"+= (compound assignment)", b:"a += b  bằng với  a = a + b. Cộng rồi gán lại vào chính biến đó.", e:"withdrawnToday_ += m.amount();\n// ←→ withdrawnToday_ = withdrawnToday_ + m.amount()"},
+  after_var:    {h:"after (biến tạm)", b:"Tính trước kết quả sau khi rút — để kiểm tra có vượt hạn mức không TRƯỚC khi thay đổi balance_. Không sửa gì cho đến khi chắc chắn OK.", e:"long double after = balance - amount;\nif (after >= -limit) balance = after;"},
+  neg_overdraft:{h:"-overdraftLimit_ (giới hạn âm)", b:"Số dư được phép xuống thấp nhất = -overdraftLimit_. Ví dụ limit=5tr thì balance có thể xuống -5tr.", e:"if (after < -5_000_000) throw... // quá hạn"},
+  gt_op:        {h:"> (lớn hơn)", b:"Trả về true nếu vế trái > vế phải.", e:"if (a > b) // true khi a lớn hơn b"},
+  lt_op:        {h:"< (nhỏ hơn)", b:"Trả về true nếu vế trái < vế phải.", e:"if (balance < amount) throw InsufficientFunds"},
+  throw_kw:     {h:"throw (ném exception)", b:"Dừng hàm ngay lập tức và ném object lỗi. Nhảy đến khối catch gần nhất. Không cần return sau throw.", e:"throw InsufficientFunds('So du khong du');\n// hàm dừng ngay đây"},
+
+  // ── Smart pointer & STL ──
+  std_map:      {h:"std::map<K,V>", b:"Cấu trúc lưu cặp key-value, tự sắp xếp theo key. Tìm kiếm O(log n). Dùng [] để truy cập / thêm.", e:'accounts_["ACC-001"] = ptr; // thêm\nacc = accounts_["ACC-001"]; // tìm', f:"Header: <map>"},
+  map_kv:       {h:"<string, shared_ptr<Account>> (kiểu map)", b:"Khai báo kiểu: key là string (ID tài khoản), value là shared_ptr<Account>. Đọc từ trái qua: map của string → shared_ptr<Account>.", e:"map<string, shared_ptr<Account>>\n//   ^key        ^value"},
+  accounts_field:{h:"accounts_ (field)", b:"Field của class Bank — lưu toàn bộ tài khoản. Trailing _ = member variable (convention). Dùng map để tra theo ID.", e:"accounts_['ACC-001'] // truy cập theo ID"},
+  make_shared_fn:{h:"std::make_shared<T>(...)", b:"Tạo object T trên heap và bọc trong shared_ptr. Cách đúng — 1 lần cấp phát, an toàn hơn new.", e:"auto p = make_shared<Account>(...);\n// p là shared_ptr<Account>", f:"Header: <memory>"},
+  make_shared_type:{h:"<SavingsAccount> (kiểu)", b:"Kiểu object cần tạo. Tham số truyền vào sẽ đi vào constructor của SavingsAccount.", e:"make_shared<SavingsAccount>(id, owner, ...)"},
+  auto_kw:      {h:"auto (tự suy kiểu)", b:"Compiler tự tìm kiểu — không cần viết tay. Ở đây auto& tương đương pair<const string, shared_ptr<Account>>&.", e:"auto x = 42;      // x là int\nauto& [k,v] = *it; // structured binding"},
+  structured_bind:{h:"[id, acc] (structured binding C++17)", b:"Tách cặp key-value từ map ra 2 biến tên dễ đọc. id = first (key), acc = second (value). Thay vì viết it->first và it->second.", e:"for (auto& [id, acc] : accounts_)\n// thay vì it->first, it->second"},
+  arrow_op:     {h:"-> (arrow operator)", b:"Truy cập method/field qua con trỏ. p->method()  bằng với  (*p).method(). Dùng với pointer (raw hoặc smart).", e:"ptr->display();  // gọi qua pointer\nobj.display();   // gọi trực tiếp"},
+  raw_ptr:      {h:"* (raw pointer)", b:"Con trỏ thô — lưu địa chỉ bộ nhớ. Dùng .get() lấy raw pointer từ shared_ptr khi cần. Không tự giải phóng.", e:"Account* p = sharedPtr.get();\np->display(); // truy cập qua raw ptr"},
+  get_fn:       {h:".get() (lấy raw pointer)", b:"Lấy raw pointer bên trong shared_ptr — không chuyển ownership. Dùng khi cần truyền cho hàm nhận T*.", e:"Account* raw = sharedPtr.get();\n// raw trỏ vào cùng object"},
+  std_swap:     {h:"std::swap(a, b)", b:"Đổi chỗ giá trị của a và b. Ở đây đổi chỗ 2 pointer để đảm bảo lock theo thứ tự ID nhỏ trước.", e:"std::swap(first, second);\n// first ↔ second", f:"Header: <algorithm> hoặc <utility>"},
+
+  // ── Mutex & lock ──
+  lock_guard_cls:{h:"std::lock_guard<M>", b:"RAII mutex wrapper. Constructor gọi mutex.lock(), destructor gọi mutex.unlock() tự động. Không thể copy.", e:"{ lock_guard<mutex> lk(mtx); ... }\n// mtx tự unlock khi ra {}", f:"Header: <mutex>"},
+  scoped_lock_cls:{h:"std::scoped_lock", b:"Giống lock_guard nhưng lock NHIỀU mutex cùng lúc (C++17). Dùng thuật toán tránh deadlock nội bộ.", e:"scoped_lock lock(mtx1, mtx2);\n// lock cả 2, tự unlock", f:"Header: <mutex> · C++17"},
+  template_arg: {h:"<std::mutex> (template argument)", b:"Chỉ định loại mutex cụ thể cho lock_guard. lock_guard là template — có thể dùng với bất kỳ loại lockable nào.", e:"lock_guard<mutex>      // mutex thường\nlock_guard<timed_mutex> // có timeout"},
+  lock_var:     {h:"lock / lk (biến RAII)", b:"Tên biến lock_guard. Chỉ cần tạo biến này — constructor lock, destructor unlock tự động. Tên không quan trọng.", e:"lock_guard<mutex> lk(mtx); // OK\nlock_guard<mutex> _(mtx);  // cũng OK"},
+  mtx_member:   {h:"mtx_ (field mutex)", b:"Member variable kiểu std::mutex. Trailing _ = member variable. Mutable vì cần lock ngay cả trong const method.", e:"mutable std::mutex mtx_;\n// mutable: lock được trong const method"},
+
+  // ── atomic & thread ──
+  atomic_cls:   {h:"std::atomic<T>", b:"Biến thread-safe cho kiểu đơn giản. Mọi thao tác (++, --, read, write) đều nguyên tử — không bị interrupt giữa chừng.", e:"atomic<int> counter{0};\ncounter++; // thread-safe", f:"Header: <atomic>"},
+  atomic_type:  {h:"<int> / <bool> (kiểu atomic)", b:"Kiểu dữ liệu bên trong atomic. Thường dùng int, bool, pointer. Không dùng với struct lớn.", e:"atomic<int>  counter;\natomic<bool> flag;"},
+  static_member:{h:"IdGenerator::accountCounter_ (static member)", b:"Static member: dùng chung cho tất cả instance của class (chỉ 1 bản). Đây là bộ đếm toàn cục cho ID.", e:"static atomic<int> counter_;\n// 1 biến dùng chung cho cả class"},
+  atomic_inc:   {h:"++ (atomic increment)", b:"Trên std::atomic, ++ là nguyên tử: đọc giá trị, cộng 1, ghi lại — không thể bị interrupt. Trả về giá trị CŨ.", e:"int old = counter++; // lấy và tăng\n// nếu 2 thread cùng làm: 1 lấy 1, 1 lấy 2"},
+  join_fn:      {h:".join() (chờ thread kết thúc)", b:"Block thread hiện tại cho đến khi thread kia chạy xong. Nếu không join, destructor của thread throw exception.", e:"thread t(func);\nt.join(); // chờ t xong mới tiếp"},
+
+  // ── Exception ──
+  try_kw:       {h:"try { }", b:"Khối code có thể throw exception. Nếu có throw bên trong, chương trình nhảy thẳng đến catch phù hợp — bỏ qua code còn lại.", e:"try {\n  riskyOperation();\n} catch (...) { }"},
+  catch_kw:     {h:"catch (exception_type& e)", b:"Bắt exception theo kiểu. Phải bắt từ cụ thể nhất → tổng quát nhất. Bắt bằng const& để không copy exception.", e:"catch (const SpecificError& e)\ncatch (const BaseError& e)"},
+  catch_specific:{h:"InsufficientFunds (catch cụ thể)", b:"Bắt đúng loại lỗi này trước. Vì InsufficientFunds kế thừa ApexError, nếu bắt ApexError trước thì catch này không bao giờ chạy.", e:"// ĐỀ PHÒNG đảo thứ tự:\ncatch(ApexError) // nuốt hết\ncatch(InsufficientFunds) // không bao giờ chạy!"},
+  catch_general:{h:"ApexError (catch tổng quát)", b:"Bắt tất cả lỗi kế thừa ApexError (gồm InsufficientFunds, OverdraftExceeded...). Đặt SAU các catch cụ thể.", e:"catch(ApexError& e) // bắt nhiều loại"},
+
+  // ── Namespace ──
+  ns_kw:        {h:"namespace (từ khoá)", b:"Tạo một không gian tên để nhóm các hàm/class liên quan. Tránh trùng tên với thư viện khác. Có thể lồng nhau.", e:"namespace A { namespace B { } }"},
+  ns_name:      {h:"InputUtils (tên namespace)", b:"Tên namespace — dùng để gọi: InputUtils::readInt(). Convention: PascalCase cho namespace.", e:"InputUtils::readInt(...)"},
+  ns_access:    {h:":: (truy cập namespace)", b:"Truy cập thành viên của namespace. Giống :: trong class nhưng dùng cho namespace.", e:"std::cout   // cout trong namespace std\nInputUtils::readInt // readInt trong InputUtils"},
+
+  // ── Glossary extras ──
+  Currency_type:{h:"Currency (enum class type)", b:"Kiểu tự tạo từ enum class. Biến kiểu Currency chỉ nhận các giá trị đã liệt kê. Compiler báo lỗi nếu gán sai.", e:"Currency c = Currency::VND; // OK\nCurrency c = 0; // LỖI!"},
+  enum_val:     {h:"VND / USD / EUR... (enum value)", b:"Giá trị của enum. Phải viết đầy đủ Currency::VND với enum class. Thực chất là int nhưng ẩn đi.", e:"Currency::VND // đúng\nVND           // LỖI với enum class"},
+  enum_access:  {h:"Currency::VND (truy cập enum)", b:"Truy cập giá trị VND trong enum class Currency. Dấu :: bắt buộc với enum class.", e:"if (c == Currency::USD) ..."},
+  pass_by_val:  {h:"Currency c (truyền theo giá trị)", b:"Copy giá trị vào hàm. Với enum (thực ra là int nhỏ), truyền theo giá trị OK — không tốn hiệu năng.", e:"void f(Currency c) // c là bản copy"},
+};
+
+// Glossary shortcuts (subset)
+const GKEYS = ['ret_string','const_ref','const_method','lock_guard_cls','scoped_lock_cls',
+  'shared_ptr_g','make_shared_fn','atomic_cls','std_map','arrow_op','override_kw',
+  'throw_kw','aggregate_init','this_kw','logic_and','fabsl_fn'];
+const GLOSSARY = {
+  ret_string:   {...TT.ret_string, u:"ID, owner, note"},
+  const_ref:    {h:"const T&", b:"Tham chiếu hằng — không copy, không sửa. Dùng cho tham số hàm với object lớn.", f:"Dùng khắp nơi", u:"Tham số hàm"},
+  const_method: {...TT.const_method, u:"balance(), display()"},
+  lock_guard_cls:{...TT.lock_guard_cls, u:"Account::deposit/withdraw"},
+  scoped_lock_cls:{...TT.scoped_lock_cls, u:"Bank::transfer"},
+  make_shared_fn:{...TT.make_shared_fn, u:"Bank::createSavings/Checking"},
+  atomic_cls:   {...TT.atomic_cls, u:"IdGenerator counters"},
+  std_map:      {...TT.std_map, u:"Bank.accounts_, rates_"},
+  arrow_op:     {...TT.arrow_op, u:"acc->display(), ptr->mutex()"},
+  override_kw:  {...TT.override_kw, u:"doWithdraw() trong 2 lớp con"},
+  throw_kw:     {...TT.throw_kw, u:"InsufficientFunds, InvalidRate..."},
+  aggregate_init:{...TT.aggregate_init, u:"Money{amount, currency}"},
+  this_kw:      {...TT.this_kw, u:"operator+=, assertSameCurrency"},
+  logic_and:    {...TT.logic_and, u:"Money::operator=="},
+  fabsl_fn:     {...TT.fabsl_fn, u:"Money::operator=="},
+};
+
+// Build glossary table
+const gtbody = document.querySelector('#gtable tbody');
+Object.entries(GLOSSARY).forEach(([k,d]) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><code class="ta" data-k="${k}" style="cursor:pointer">${d.h}</code></td>`+
+    `<td style="font-size:12.5px;color:var(--muted)">${d.b.substring(0,75)}…</td>`+
+    `<td style="font-size:11.5px;color:var(--green);font-family:monospace">${d.u||'—'}</td>`;
+  gtbody.appendChild(tr);
+});
+
+// Tooltip engine
+let ttOpen = false;
+function bindTips() {
+  document.querySelectorAll('.ta,.t').forEach(el => {
+    if (el._tipBound) return;
+    el._tipBound = true;
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const k = el.dataset.k, d = TT[k] || GLOSSARY[k];
+      if (!d) return;
+      const box = document.getElementById('ttbox');
+      document.getElementById('tth').textContent = d.h;
+      document.getElementById('ttb').textContent = d.b;
+      const egEl = document.getElementById('tte');
+      if (d.e) { egEl.textContent = d.e; egEl.style.display = 'block'; }
+      else egEl.style.display = 'none';
+      const foot = box.querySelector('.tt-foot');
+      foot.textContent = (d.f ? d.f + ' · ' : '') + 'Click ngoài để đóng';
+      const r = el.getBoundingClientRect();
+      let top = r.bottom + 8;
+      let left = r.left;
+      if (left + 295 > window.innerWidth) left = window.innerWidth - 300;
+      if (left < 4) left = 4;
+      if (r.bottom + 160 > window.innerHeight) top = r.top - 175;
+      box.style.cssText = `display:block;top:${top}px;left:${left}px`;
+      ttOpen = true;
+    });
+  });
+}
+document.addEventListener('click', () => {
+  if (ttOpen) { document.getElementById('ttbox').style.display='none'; ttOpen=false; }
+});
+bindTips();
+
+// Copy
+function cp(btn) {
+  const text = btn.nextElementSibling.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent='✓'; btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('ok');},1400);
+  });
+}
+
+// Checklist
+function tck(el) {
+  el.classList.toggle('done');
+  const s = JSON.parse(localStorage.getItem('apx')||'{}');
+  s[el.dataset.id] = el.classList.contains('done');
+  localStorage.setItem('apx', JSON.stringify(s));
+  uprog();
+}
+function uprog() {
+  const all = document.querySelectorAll('.ci').length;
+  const done = document.querySelectorAll('.ci.done').length;
+  document.getElementById('pct').textContent = `${done}/${all} hoàn thành`;
+  document.getElementById('pfill').style.width = `${done/all*100}%`;
+}
+(function(){
+  const s = JSON.parse(localStorage.getItem('apx')||'{}');
+  Object.keys(s).forEach(id=>{if(s[id]){const el=document.querySelector(`[data-id="${id}"]`);if(el)el.classList.add('done');}});
+  uprog();
+})();
+
+// Sidebar active
+secs = document.querySelectorAll('.sec');
+document.querySelectorAll('.side a').forEach(a => {
+  const id = a.getAttribute('href')?.slice(1);
+  if (!id) return;
+  const sec = document.getElementById(id);
+  if (!sec) return;
+  new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.isIntersecting) {
+        document.querySelectorAll('.side a').forEach(x=>x.classList.remove('on'));
+        a.classList.add('on');
+      }
+    });
+  },{rootMargin:'-15% 0px -75% 0px'}).observe(sec);
+});
+
+// Deadlock
+const STEPS = [
+  {d:500, log:['lsy','Bắt đầu: A chuyển TK1→TK2, B chuyển TK2→TK1 cùng lúc']},
+  {d:800, log:['la','[A] Đang lock mtx_TK1...','lb','[B] Đang lock mtx_TK2...'],
+    ta:{c:'run',s:'CHẠY',h:'—',w:'mtx_TK1'}, tb:{c:'run',s:'CHẠY',h:'—',w:'mtx_TK2'}},
+  {d:900, log:['la','[A] ✓ Đã lock mtx_TK1!','lb','[B] ✓ Đã lock mtx_TK2!'],
+    ta:{c:'run',s:'CHẠY',h:'mtx_TK1',w:'mtx_TK2'},
+    tb:{c:'run',s:'CHẠY',h:'mtx_TK2',w:'mtx_TK1'},
+    m1:{c:'la',o:'→ Thread A'}, m2:{c:'lb',o:'→ Thread B'}},
+  {d:950, log:['la','[A] Đang chờ mtx_TK2... (B đang giữ)','lb','[B] Đang chờ mtx_TK1... (A đang giữ)'],
+    ta:{c:'wait',s:'CHỜ',h:'mtx_TK1',w:'mtx_TK2 🔒'},
+    tb:{c:'wait',s:'CHỜ',h:'mtx_TK2',w:'mtx_TK1 🔒'}},
+  {d:1200,log:['ler','💀 DEADLOCK! A chờ B, B chờ A — vòng tròn không lối thoát. Chương trình treo!'],
+    ta:{c:'dead',s:'DEADLOCK'},tb:{c:'dead',s:'DEADLOCK'}},
+];
+function dlApply(s){
+  const ap=(id,sid,hid,wid,d)=>{if(!d)return;document.getElementById(id).className='dl-th '+(d.c||'idle');const sel=document.getElementById(sid);if(d.s)sel.textContent=d.s;sel.className='ths '+(d.c||'');if(d.h!==undefined)document.getElementById(hid).textContent=d.h;if(d.w!==undefined)document.getElementById(wid).textContent=d.w;};
+  ap('dta','tas','tah','taw',s.ta);ap('dtb','tbs','tbh','tbw',s.tb);
+  if(s.m1){document.getElementById('dm1').className='dl-mx '+s.m1.c;document.getElementById('m1o').textContent=s.m1.o;}
+  if(s.m2){document.getElementById('dm2').className='dl-mx '+s.m2.c;document.getElementById('m2o').textContent=s.m2.o;}
+  if(s.log){const lg=document.getElementById('dllog');for(let i=0;i<s.log.length;i+=2)lg.innerHTML+=`<div class="${s.log[i]}">${s.log[i+1]}</div>`;lg.scrollTop=9999;}
+}
+function dlPlay(){document.getElementById('dlpb').disabled=true;document.getElementById('dlst').textContent='Đang chạy...';document.getElementById('dllog').innerHTML='';let i=0;(function next(){if(i>=STEPS.length){document.getElementById('dlst').textContent='💀 Deadlock — Nhấn Reset để thử lại';return;}const s=STEPS[i++];setTimeout(()=>{dlApply(s);next();},s.d);})();}
+function dlReset(){['dta','dtb'].forEach(id=>document.getElementById(id).className='dl-th idle');document.getElementById('tas').textContent='IDLE';document.getElementById('tas').className='ths';document.getElementById('tbs').textContent='IDLE';document.getElementById('tbs').className='ths';['tah','taw','tbh','tbw'].forEach(id=>document.getElementById(id).textContent='—');['dm1','dm2'].forEach(id=>document.getElementById(id).className='dl-mx free');document.getElementById('m1o').textContent='Tự do';document.getElementById('m2o').textContent='Tự do';document.getElementById('dllog').innerHTML='<span class="lsy">// Log sự kiện...</span>';document.getElementById('dlpb').disabled=false;document.getElementById('dlst').textContent='Nhấn ▶ để xem deadlock xảy ra từng bước';}
+</script>
+</body>
+</html>
