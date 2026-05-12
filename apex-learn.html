@@ -762,13 +762,14 @@ Object.entries(GLOSSARY).forEach(([k,d]) => {
 });
 
 // Tooltip engine
-let ttOpen = false;
+let ttOpen = false, ttJust = false;
 function bindTips() {
   document.querySelectorAll('.ta,.t').forEach(el => {
     if (el._tipBound) return;
     el._tipBound = true;
     el.addEventListener('click', e => {
       e.stopPropagation();
+      ttJust = true; setTimeout(() => ttJust = false, 0);
       const k = el.dataset.k, d = TT[k] || GLOSSARY[k];
       if (!d) return;
       const box = document.getElementById('ttbox');
@@ -791,6 +792,7 @@ function bindTips() {
   });
 }
 document.addEventListener('click', () => {
+  if (ttJust) return;
   if (ttOpen) { document.getElementById('ttbox').style.display='none'; ttOpen=false; }
 });
 bindTips();
