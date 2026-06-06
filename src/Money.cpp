@@ -36,7 +36,7 @@ bool Money::operator<=(const Money& o) const {
 }
 
 bool Money::operator==(const Money& o) const {
-    return currency_ == o.currency_ && std::fabsl(amount_ - o.amount_) < 1e-9L;
+    return currency_ == o.currency_ && std::fabs(amount_ - o.amount_) < 1e-9L;
 }
 
 static std::string formatNumber(long double value, int decimals) {
