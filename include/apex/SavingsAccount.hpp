@@ -1,0 +1,21 @@
+#pragma once
+#include "apex/Account.hpp"
+
+class SavingsAccount : public Account {
+public:
+    SavingsAccount(const std::string& id, const std::string& owner,
+                   const Money& initialBalance,
+                   long double interestRate, long double dailyWithdrawCap);
+
+    std::string type() const override { return "Tiet kiem"; }
+    void applyInterest();
+    void display(std::ostream& os) const override;
+
+protected:
+    void doWithdraw(const Money& m) override;
+
+private:
+    long double interestRate_;
+    long double dailyWithdrawCap_;
+    long double withdrawnToday_;
+};
