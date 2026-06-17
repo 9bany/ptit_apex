@@ -12,7 +12,8 @@ public:
     void display(std::ostream& os) const override;
 
 protected:
-    void doWithdraw(const Money& m) override;
+    void checkWithdrawRules(const Money& m) override;
+    void onAfterWithdraw(const Money& m) override;
 
 private:
     long double interestRate_;

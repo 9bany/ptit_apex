@@ -24,10 +24,15 @@ void Account::doWithdraw(const Money& m) {
         throw CurrencyMismatch("Withdraw currency does not match account currency");
     if (m.amount() <= 0.0L)
         throw InvalidInput("Withdraw amount must be positive");
+    checkWithdrawRules(m);
+    balance_ = balance_ - m;
+    onAfterWithdraw(m);
+}
+
+void Account::checkWithdrawRules(const Money& m) {
     if (balance_.amount() < m.amount())
         throw InsufficientFunds("So du khong du: can " + m.toString() +
                                 ", hien co " + balance_.toString());
-    balance_ = Money{balance_.amount() - m.amount(), balance_.currency()};
 }
 
 void Account::deposit(const Money& m) {

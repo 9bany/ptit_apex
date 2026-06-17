@@ -27,7 +27,10 @@ public:
 
 protected:
     virtual void doDeposit(const Money& m);
-    virtual void doWithdraw(const Money& m);
+    void         doWithdraw(const Money& m);          // template — khong override duoc
+
+    virtual void checkWithdrawRules(const Money& m);  // hook: mac dinh kiem tra so du
+    virtual void onAfterWithdraw(const Money& m) {}   // hook: mac dinh khong lam gi
 
     std::string         id_;
     std::string         owner_;

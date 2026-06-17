@@ -10,7 +10,8 @@ public:
     void display(std::ostream& os) const override;
 
 protected:
-    void doWithdraw(const Money& m) override;
+    void checkWithdrawRules(const Money& m) override;
+    // onAfterWithdraw khong can — dung mac dinh rong tu Account
 
 private:
     long double overdraftLimit_;

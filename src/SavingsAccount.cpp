@@ -1,6 +1,5 @@
 #include "apex/SavingsAccount.hpp"
 #include "apex/Errors.hpp"
-#include <iostream>
 #include <iomanip>
 
 SavingsAccount::SavingsAccount(const std::string& id, const std::string& owner,
@@ -11,21 +10,14 @@ SavingsAccount::SavingsAccount(const std::string& id, const std::string& owner,
       dailyWithdrawCap_(dailyWithdrawCap),
       withdrawnToday_(0.0L) {}
 
-void SavingsAccount::doWithdraw(const Money& m) {
-    if (m.currency() != balance_.currency())
-        throw CurrencyMismatch("Currency mismatch");
-    if (m.amount() <= 0.0L)
-        throw InvalidInput("Withdraw amount must be positive");
-
+void SavingsAccount::checkWithdrawRules(const Money& m) {
     if (withdrawnToday_ + m.amount() > dailyWithdrawCap_)
         throw InsufficientFunds("Vuot han muc rut trong ngay: han muc " +
                                 Money{dailyWithdrawCap_, m.currency()}.toString());
+    Account::checkWithdrawRules(m);
+}
 
-    if (balance_.amount() < m.amount())
-        throw InsufficientFunds("So du khong du: can " + m.toString() +
-                                ", hien co " + balance_.toString());
-
-    balance_        = Money{balance_.amount() - m.amount(), balance_.currency()};
+void SavingsAccount::onAfterWithdraw(const Money& m) {
     withdrawnToday_ += m.amount();
 }
 
