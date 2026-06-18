@@ -12,10 +12,9 @@ public:
     Account(const std::string& id, const std::string& owner, const Money& initialBalance);
     virtual ~Account() = default;
 
-    std::string  id()    const { return id_; }
-    std::string  owner() const { return owner_; }
+    std::string  id()      const { return id_; }
+    std::string  owner()   const { return owner_; }
     Money        balance() const;
-    std::mutex&  mutex() { return mtx_; }
 
     void deposit(const Money& m);
     void withdraw(const Money& m);

@@ -76,7 +76,7 @@ void Bank::transfer(const std::string& srcId, const std::string& dstId, const Mo
     Account* second = dstPtr.get();
     if (srcId > dstId) std::swap(first, second);
 
-    std::scoped_lock<std::mutex, std::mutex> lock(first->mutex(), second->mutex());
+    std::scoped_lock<std::mutex, std::mutex> lock(first->mtx_, second->mtx_);
 
     // Convert currency if accounts differ
     Money converted = converter_.convert(amount, dstPtr->balance_.currency());
