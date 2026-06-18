@@ -1,6 +1,7 @@
 #pragma once
 #include "apex/Account.hpp"
 
+// Tai khoan tiet kiem: co lai suat va han muc rut tien trong ngay.
 class SavingsAccount : public Account {
 public:
     SavingsAccount(const std::string& id, const std::string& owner,

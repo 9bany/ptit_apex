@@ -1,6 +1,7 @@
 #pragma once
 #include "apex/Account.hpp"
 
+// Tai khoan thanh toan: cho phep so du am den han muc thu chi.
 class CheckingAccount : public Account {
 public:
     CheckingAccount(const std::string& id, const std::string& owner,

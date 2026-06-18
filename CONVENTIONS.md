@@ -89,13 +89,14 @@ doWithdraw()          ← non-virtual, không override được
 
 ## 6. Comment
 
-- Viết comment **trong lúc viết code**, không để sau
-- Comment giải thích **tại sao**, không giải thích **cái gì** (code tự nói được cái gì)
+Yêu cầu từ đề bài: **"ghi chú rõ ràng, đầy đủ"** và **"mô tả thông tin chương trình"**.
+
 - Mỗi `.hpp`: một dòng mô tả class/namespace làm gì ở đầu file
-- Hàm phức tạp: comment ngắn trước khai báo
+- Hàm có logic không tự giải thích được: comment mô tả ngắn trước khai báo
+- Không dùng comment để giải thích thay đổi code — đó là việc của commit message
 
 ```cpp
-// Tiet kiem: co lai suat va han muc rut trong ngay.
+// Tai khoan tiet kiem: co lai suat va han muc rut tien trong ngay.
 class SavingsAccount : public Account { ... };
 
 // Khoa ca hai tai khoan theo thu tu ID de tranh deadlock.
