@@ -62,14 +62,3 @@ void Account::display(std::ostream& os) const {
        << "  Chu TK : " << owner_ << "\n"
        << "  So du  : " << balance_.toString() << "\n";
 }
-
-// Free operator overloads — deposit / withdraw with return for chaining
-Account& operator+(Account& dst, const Money& m) {
-    dst.deposit(m);
-    return dst;
-}
-
-Account& operator-(Account& src, const Money& m) {
-    src.withdraw(m);
-    return src;
-}

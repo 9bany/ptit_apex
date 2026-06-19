@@ -4,8 +4,6 @@
 #include <iostream>
 #include <algorithm>
 
-Bank::Bank() {}
-
 std::string Bank::createSavings(const std::string& owner, const Money& initialBalance,
                                 long double interestRate, long double dailyWithdrawCap) {
     std::string id = IdGenerator::nextAccountId();
@@ -44,16 +42,14 @@ Account& Bank::getAccount(const std::string& id) {
 
 void Bank::deposit(const std::string& id, const Money& m) {
     Account& acc = getAccount(id);
-    // operator+ performs the deposit
-    acc + m;
+    acc += m;
     log_.record(Transaction{IdGenerator::nextTransactionId(),
                             TransactionType::Deposit, id, "", m});
 }
 
 void Bank::withdraw(const std::string& id, const Money& m) {
     Account& acc = getAccount(id);
-    // operator- performs the withdrawal
-    acc - m;
+    acc -= m;
     log_.record(Transaction{IdGenerator::nextTransactionId(),
                             TransactionType::Withdraw, id, "", m});
 }

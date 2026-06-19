@@ -40,5 +40,3 @@ protected:
     friend class Bank;
 };
 
-Account& operator+(Account& dst, const Money& m);
-Account& operator-(Account& src, const Money& m);
