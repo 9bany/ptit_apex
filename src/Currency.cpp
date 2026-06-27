@@ -1,6 +1,5 @@
 #include "apex/Currency.hpp"
 #include "apex/Errors.hpp"
-#include <stdexcept>
 
 std::string currencyToString(Currency c) {
     switch (c) {

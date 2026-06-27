@@ -1,7 +1,6 @@
 #include "apex/Account.hpp"
 #include "apex/Errors.hpp"
 #include <iomanip>
-#include <iostream>
 
 Account::Account(const std::string& id, const std::string& owner, const Money& initialBalance)
     : id_(id), owner_(owner), balance_(initialBalance) {}
