@@ -1,4 +1,5 @@
 #pragma once
+#include "apex/Color.hpp"
 #include <iostream>
 #include <string>
 
@@ -7,12 +8,12 @@ extern int g_passed;
 extern int g_failed;
 
 inline void ok(const std::string& name) {
-    std::cout << "  [PASS] " << name << "\n";
+    std::cout << Color::green << "  [PASS] " << Color::reset << name << "\n";
     ++g_passed;
 }
 
 inline void fail(const std::string& name, const std::string& reason) {
-    std::cout << "  [FAIL] " << name << " -- " << reason << "\n";
+    std::cout << Color::red << "  [FAIL] " << Color::reset << name << " -- " << reason << "\n";
     ++g_failed;
 }
 

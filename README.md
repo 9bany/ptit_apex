@@ -60,9 +60,9 @@ account -= Money{200'000, Currency::VND};   // operator-= → rút tiền
  [0]  Thoát
 ```
 
-## Demo kịch bản lỗi (cho video)
+## Demo kịch bản lỗi
 
-### 1. Chi tiêu kép (Double Spending)
+### 1. Chi tiêu kép (Double Spending) — [xem demo](docs/demo_double_spend.md)
 
 ```
 ./apex --demo → [12] → [1]
@@ -71,7 +71,7 @@ account -= Money{200'000, Currency::VND};   // operator-= → rút tiền
 - **Không có mutex**: hai thread cùng thấy số dư đủ, cùng rút → số dư âm.
 - **Có mutex** (Apex): chỉ một thread rút thành công, thread kia bị từ chối.
 
-### 2. Tỷ giá không hợp lệ
+### 2. Tỷ giá không hợp lệ — *(demo sẽ bổ sung sau)*
 
 ```
 ./apex → [12] → [2]
