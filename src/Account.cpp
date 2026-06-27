@@ -1,4 +1,5 @@
 #include "apex/Account.hpp"
+#include "apex/Color.hpp"
 #include "apex/Errors.hpp"
 #include <iomanip>
 
@@ -56,8 +57,8 @@ Account& Account::operator-=(const Money& m) {
 
 void Account::display(std::ostream& os) const {
     std::lock_guard<std::mutex> lock(mtx_);
-    os << "  ID     : " << id_ << "\n"
-       << "  Loai   : " << type() << "\n"
-       << "  Chu TK : " << owner_ << "\n"
-       << "  So du  : " << balance_.toString() << "\n";
+    os << Color::cyan << "  ID     : " << Color::reset << id_ << "\n"
+       << Color::cyan << "  Loai   : " << Color::reset << type() << "\n"
+       << Color::cyan << "  Chu TK : " << Color::reset << owner_ << "\n"
+       << Color::cyan << "  So du  : " << Color::reset << balance_.toString() << "\n";
 }

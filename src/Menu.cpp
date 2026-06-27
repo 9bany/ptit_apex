@@ -1,4 +1,5 @@
 #include "apex/Menu.hpp"
+#include "apex/Color.hpp"
 #include "apex/InputUtils.hpp"
 #include "apex/SampleData.hpp"
 #include "apex/DemoScenarios.hpp"
@@ -18,25 +19,30 @@ Menu::Menu(Bank& bank) : bank_(bank) {}
 
 void Menu::printHeader() const {
     sep();
-    std::cout << "     HE THONG NGAN HANG DA TIEN TE  APEX\n";
+    std::cout << Color::bold << Color::cyan
+              << "     HE THONG NGAN HANG DA TIEN TE  APEX\n"
+              << Color::reset;
     sep();
 }
 
 void Menu::printMainMenu() const {
+    auto item = [](const char* num, const char* label) {
+        std::cout << Color::cyan << num << Color::reset << "  " << label << "\n";
+    };
     std::cout << "\n";
-    std::cout << " [1]  Tao tai khoan moi\n";
-    std::cout << " [2]  Nap tien\n";
-    std::cout << " [3]  Rut tien\n";
-    std::cout << " [4]  Chuyen khoan\n";
-    std::cout << " [5]  Xem thong tin tai khoan\n";
-    std::cout << " [6]  Lich su giao dich (theo tai khoan)\n";
-    std::cout << " [7]  Nhat ky giao dich toan he thong\n";
-    std::cout << " [8]  Cap nhat ty gia hoi doai\n";
-    std::cout << " [9]  Xem ty gia hoi doai hien tai\n";
-    std::cout << "[10]  Danh sach tat ca tai khoan\n";
-    std::cout << "[11]  Tao du lieu mau\n";
-    std::cout << "[12]  Demo kich ban loi\n";
-    std::cout << " [0]  Thoat\n";
+    item(" [1]",  "Tao tai khoan moi");
+    item(" [2]",  "Nap tien");
+    item(" [3]",  "Rut tien");
+    item(" [4]",  "Chuyen khoan");
+    item(" [5]",  "Xem thong tin tai khoan");
+    item(" [6]",  "Lich su giao dich (theo tai khoan)");
+    item(" [7]",  "Nhat ky giao dich toan he thong");
+    item(" [8]",  "Cap nhat ty gia hoi doai");
+    item(" [9]",  "Xem ty gia hoi doai hien tai");
+    item("[10]",  "Danh sach tat ca tai khoan");
+    item("[11]",  "Tao du lieu mau");
+    item("[12]",  "Demo kich ban loi");
+    item(" [0]",  "Thoat");
     sep('-');
 }
 
@@ -48,7 +54,7 @@ void Menu::run() {
         std::cout << "\n";
         try {
             switch (choice) {
-                case  0: std::cout << "  Tam biet!\n"; return;
+                case  0: std::cout << Color::cyan << "  Tam biet!\n" << Color::reset; return;
                 case  1: handleCreateAccount(); break;
                 case  2: handleDeposit();       break;
                 case  3: handleWithdraw();      break;
@@ -63,12 +69,12 @@ void Menu::run() {
                 case 12: handleDemos();         break;
             }
         } catch (const ApexError& e) {
-            std::cout << "  [LOI] " << e.what() << "\n";
+            std::cout << Color::red << "  [LOI] " << Color::reset << e.what() << "\n";
         } catch (const std::exception& e) {
-            std::cout << "  [LOI HE THONG] " << e.what() << "\n";
+            std::cout << Color::red << "  [LOI HE THONG] " << Color::reset << e.what() << "\n";
         }
         if (std::cin.good()) {
-            std::cout << "\n  Nhan Enter de tiep tuc...";
+            std::cout << Color::dim << "\n  Nhan Enter de tiep tuc..." << Color::reset;
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
         if (!std::cin) break;
@@ -105,7 +111,8 @@ void Menu::handleCreateAccount() {
         id = bank_.createChecking(owner, Money{amount, curr}, od);
     }
 
-    std::cout << "  [+] Da tao tai khoan: " << id << " cho " << owner << "\n";
+    std::cout << Color::green << "  [+] Da tao tai khoan: " << Color::reset
+              << id << " cho " << owner << "\n";
 }
 
 void Menu::handleDeposit() {
@@ -118,10 +125,10 @@ void Menu::handleDeposit() {
     long double amount = InputUtils::readAmount("  So tien nap: ");
 
     Money m{amount, curr};
-    std::cout << "  [*] Goi: account + " << m << "  (operator+)\n";
+    std::cout << Color::yellow << "  [*] account += " << m << Color::reset << "\n";
     bank_.deposit(id, m);
 
-    std::cout << "  [+] Nap tien thanh cong! So du moi: "
+    std::cout << Color::green << "  [+] Nap tien thanh cong! So du moi: " << Color::reset
               << bank_.getAccount(id).balance() << "\n";
 }
 
@@ -135,10 +142,10 @@ void Menu::handleWithdraw() {
     long double amount = InputUtils::readAmount("  So tien rut: ");
 
     Money m{amount, curr};
-    std::cout << "  [*] Goi: account - " << m << "  (operator-)\n";
+    std::cout << Color::yellow << "  [*] account -= " << m << Color::reset << "\n";
     bank_.withdraw(id, m);
 
-    std::cout << "  [-] Rut tien thanh cong! So du moi: "
+    std::cout << Color::green << "  [-] Rut tien thanh cong! So du moi: " << Color::reset
               << bank_.getAccount(id).balance() << "\n";
 }
 
@@ -154,7 +161,7 @@ void Menu::handleTransfer() {
 
     bank_.transfer(srcId, dstId, Money{amount, curr});
 
-    std::cout << "  [<->] Chuyen khoan thanh cong!\n"
+    std::cout << Color::green << "  [<->] Chuyen khoan thanh cong!\n" << Color::reset
               << "  So du tai khoan nguon: " << bank_.getAccount(srcId).balance() << "\n"
               << "  So du tai khoan dich : " << bank_.getAccount(dstId).balance() << "\n";
 }
@@ -201,8 +208,9 @@ void Menu::handleSetRate() {
                                    "Ty gia " + currencyToString(from) + "->" +
                                    currencyToString(to) + " = " + std::to_string(rate)});
 
-    std::cout << "  [+] Da cap nhat: 1 " << currencyToString(from)
-              << " = " << rate << " " << currencyToString(to) << "\n";
+    std::cout << Color::green << "  [+] Da cap nhat: " << Color::reset
+              << "1 " << currencyToString(from) << " = " << rate
+              << " " << currencyToString(to) << "\n";
 }
 
 void Menu::handleViewRates() {
