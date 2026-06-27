@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex — Demo: Tỷ giá không hợp lệ</title>
+<style>
+  :root {
+    --bg:      #1e1e2e;
+    --surface: #2a2a3e;
+    --border:  #44446a;
+    --text:    #cdd6f4;
+    --dim:     #6c7086;
+    --accent:  #89b4fa;
+    --green:   #a6e3a1;
+    --red:     #f38ba8;
+    --yellow:  #f9e2af;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Courier New', monospace;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  h1 { color: var(--accent); font-size: 1.4rem; margin-bottom: 0.3rem; }
+  .subtitle { color: var(--dim); font-size: 0.85rem; margin-bottom: 2rem; }
+
+  .ctrl { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem; }
+  .btn {
+    padding: 0.4rem 1rem;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all .15s;
+  }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.pri { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: bold; }
+  .btn.pri:hover:not(:disabled) { filter: brightness(1.1); }
+  .status { color: var(--dim); font-size: 0.85rem; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+  }
+  .panel-label {
+    font-size: .7rem;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: .7rem;
+  }
+
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  /* Rate display */
+  .rate-pair { font-size: .8rem; color: var(--dim); margin-bottom: .3rem; }
+  .rate-val {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: var(--green);
+    transition: color .4s;
+  }
+  .rate-note { font-size: .72rem; color: var(--dim); margin-top: .4rem; transition: color .3s; }
+
+  /* Attempt rows */
+  .attempt {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .4rem 0;
+    border-bottom: 1px solid var(--border);
+    opacity: .3;
+    transition: opacity .3s;
+  }
+  .attempt:last-child { border-bottom: none; }
+  .attempt.active { opacity: 1; }
+  .attempt-rate {
+    font-size: .9rem;
+    font-weight: bold;
+    color: var(--yellow);
+    min-width: 90px;
+  }
+  .attempt-result {
+    font-size: .78rem;
+    color: var(--dim);
+    transition: color .3s;
+    flex: 1;
+  }
+  .attempt-icon { font-size: 1rem; min-width: 1.2rem; }
+
+  /* Validator box */
+  .validator {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .7rem 1rem;
+    font-size: .78rem;
+    margin-bottom: 1.2rem;
+    min-height: 3.5rem;
+    transition: border-color .3s;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+  }
+  .validator.checking { border-color: var(--yellow); }
+  .validator.rejected { border-color: var(--red); }
+  .validator.idle     { border-color: var(--border); }
+  .validator-title { font-size: .65rem; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+  .validator-msg { color: var(--text); }
+
+  /* Log */
+  .log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .8rem 1rem;
+    font-size: .8rem;
+    min-height: 6rem;
+    max-height: 11rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+  }
+  .log-line { line-height: 1.5; }
+  .log-line.sys  { color: var(--dim); }
+  .log-line.ok   { color: var(--green); font-weight: bold; }
+  .log-line.err  { color: var(--red); }
+  .log-line.warn { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<h1>Apex — Demo: Tỷ giá hối đoái không hợp lệ</h1>
+<p class="subtitle">Môn INT1339 · Validator từ chối tỷ giá ≤ 0, bảo toàn tỷ giá cũ</p>
+
+<div class="ctrl">
+  <button class="btn pri" id="run-btn" onclick="irPlay()">▶ Chạy demo</button>
+  <button class="btn" onclick="irReset()">↺ Reset</button>
+  <span class="status" id="ir-status">Thử đặt 3 tỷ giá không hợp lệ</span>
+</div>
+
+<div class="top-grid">
+  <div class="panel">
+    <div class="panel-label">Tỷ giá hiện tại — USD → VND</div>
+    <div class="rate-val" id="ir-rate">25,000.00</div>
+    <div class="rate-note" id="ir-note">— chưa thay đổi —</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label">Các lần thử</div>
+    <div id="ir-attempts">
+      <div class="attempt" id="ir-a0">
+        <span class="attempt-icon" id="ir-i0">·</span>
+        <span class="attempt-rate">rate = 0</span>
+        <span class="attempt-result" id="ir-r0">đang chờ...</span>
+      </div>
+      <div class="attempt" id="ir-a1">
+        <span class="attempt-icon" id="ir-i1">·</span>
+        <span class="attempt-rate">rate = -1.5</span>
+        <span class="attempt-result" id="ir-r1">đang chờ...</span>
+      </div>
+      <div class="attempt" id="ir-a2">
+        <span class="attempt-icon" id="ir-i2">·</span>
+        <span class="attempt-rate">rate = -0.001</span>
+        <span class="attempt-result" id="ir-r2">đang chờ...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="validator idle" id="ir-validator">
+  <div class="validator-title">Validator — CurrencyConverter::setRate()</div>
+  <div class="validator-msg" id="ir-vmsg">Chờ lần thử tiếp theo...</div>
+</div>
+
+<div class="log" id="ir-log">
+  <div class="log-line sys">— Nhấn "Chạy demo" để bắt đầu —</div>
+</div>
+
+<script>
+function addLog(text, cls='sys') {
+  const log = document.getElementById('ir-log');
+  const d = document.createElement('div');
+  d.className = 'log-line ' + cls;
+  d.textContent = text;
+  log.appendChild(d);
+  log.scrollTop = log.scrollHeight;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+let irRunning = false;
+
+const cases = [
+  { id: '0', rate: '0',      msg: 'Tỷ giá bằng 0: không hợp lệ, phải > 0' },
+  { id: '1', rate: '-1.5',   msg: 'Tỷ giá âm: không thể quy đổi với tỷ lệ âm' },
+  { id: '2', rate: '-0.001', msg: 'Tỷ giá âm: không thể quy đổi với tỷ lệ âm' },
+];
+
+async function irPlay() {
+  if (irRunning) return;
+  irRunning = true;
+  irReset();
+  await sleep(50);
+
+  const runBtn = document.getElementById('run-btn');
+  runBtn.disabled = true;
+
+  addLog('Tỷ giá USD→VND hiện tại: 25,000.00');
+  addLog('Thử đặt 3 tỷ giá không hợp lệ — hệ thống có bắt được không?');
+  await sleep(700);
+
+  const validator = document.getElementById('ir-validator');
+  const vmsg = document.getElementById('ir-vmsg');
+
+  for (const c of cases) {
+    const row = document.getElementById('ir-a' + c.id);
+    const icon = document.getElementById('ir-i' + c.id);
+    const result = document.getElementById('ir-r' + c.id);
+
+    row.classList.add('active');
+    icon.textContent = '⟳';
+    result.textContent = 'đang thử...';
+    result.style.color = 'var(--yellow)';
+
+    validator.className = 'validator checking';
+    vmsg.textContent = `setRate(USD, VND, ${c.rate}) — đang kiểm tra...`;
+    addLog(`Thử đặt USD→VND = ${c.rate}...`, 'warn');
+    await sleep(800);
+
+    validator.className = 'validator rejected';
+    vmsg.textContent = `throw InvalidRate — "${c.msg}"`;
+    icon.textContent = '✗';
+    result.textContent = 'InvalidRate — bị từ chối';
+    result.style.color = 'var(--green)';
+    addLog(`[OK] Hệ thống ném InvalidRate: ${c.msg}`, 'ok');
+    await sleep(600);
+  }
+
+  validator.className = 'validator idle';
+  vmsg.textContent = 'Chờ lần thử tiếp theo...';
+
+  await sleep(500);
+  addLog('Kiểm tra tỷ giá sau 3 lần thử sai...', 'sys');
+  await sleep(500);
+
+  const rateEl = document.getElementById('ir-rate');
+  const noteEl = document.getElementById('ir-note');
+  rateEl.style.color = 'var(--accent)';
+  noteEl.textContent = '✓ vẫn giữ nguyên 25,000.00 sau 3 lần thử sai';
+  noteEl.style.color = 'var(--green)';
+
+  addLog('✓ KẾT QUẢ: USD→VND = 25,000.00 — tỷ giá cũ được bảo toàn', 'ok');
+  addLog('✓ Kết luận: setRate() chỉ chấp nhận tỷ giá > 0, throw InvalidRate nếu không', 'ok');
+  document.getElementById('ir-status').textContent = '✓ Validator hoạt động đúng — tỷ giá cũ bảo toàn';
+
+  runBtn.disabled = false;
+  irRunning = false;
+}
+
+function irReset() {
+  cases.forEach(c => {
+    const row = document.getElementById('ir-a' + c.id);
+    row.classList.remove('active');
+    document.getElementById('ir-i' + c.id).textContent = '·';
+    const r = document.getElementById('ir-r' + c.id);
+    r.textContent = 'đang chờ...';
+    r.style.color = 'var(--dim)';
+  });
+  const rateEl = document.getElementById('ir-rate');
+  rateEl.style.color = 'var(--green)';
+  document.getElementById('ir-note').textContent = '— chưa thay đổi —';
+  document.getElementById('ir-note').style.color = 'var(--dim)';
+  document.getElementById('ir-validator').className = 'validator idle';
+  document.getElementById('ir-vmsg').textContent = 'Chờ lần thử tiếp theo...';
+  document.getElementById('ir-log').innerHTML = '<div class="log-line sys">— Nhấn "Chạy demo" để bắt đầu —</div>';
+  document.getElementById('ir-status').textContent = 'Thử đặt 3 tỷ giá không hợp lệ';
+}
+</script>
+</body>
+</html>

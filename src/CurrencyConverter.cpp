@@ -1,6 +1,7 @@
 #include "apex/CurrencyConverter.hpp"
 #include "apex/Errors.hpp"
 #include <iomanip>
+#include <sstream>
 
 CurrencyConverter::CurrencyConverter() {
     // Default rates (VND base: 1 unit = X VND)
@@ -20,9 +21,11 @@ CurrencyConverter::CurrencyConverter() {
 }
 
 void CurrencyConverter::setRate(Currency from, Currency to, long double rate) {
-    if (rate <= 0.0L)
-        throw InvalidRate("Ty gia phai duong, nhung nhan duoc: " +
-                         std::to_string(static_cast<double>(rate)));
+    if (rate <= 0.0L) {
+        std::ostringstream oss;
+        oss << rate;
+        throw InvalidRate("Ty gia phai duong, nhung nhan duoc: " + oss.str());
+    }
     rates_[{key(from), key(to)}] = rate;
     rates_[{key(to), key(from)}] = 1.0L / rate;
 }
