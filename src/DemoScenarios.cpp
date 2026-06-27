@@ -47,8 +47,8 @@ static void demoWithoutLock() {
     UnsafeBalance acct;
     acct.balance  = 1000.0;
     acct.currency = "USD";
-    std::cout << "  So du ban dau: 1,000.00 USD\n";
-    std::cout << "  Hai thiet bi dau cuoi cung thu rut 1,000.00 USD...\n";
+    std::cout << "  So du ban dau: " << Color::yellow << "1,000.00 USD" << Color::reset << "\n";
+    std::cout << "  Hai thiet bi dau cuoi cung thu rut " << Color::yellow << "1,000.00 USD" << Color::reset << "...\n";
     std::cout << Color::dim
               << "  (Output phia duoi co the bi chen nhau — day chinh la bieu hien race condition)\n"
               << Color::reset << "\n";
@@ -68,7 +68,8 @@ static void demoWithoutLock() {
     t1.join();
     t2.join();
 
-    std::cout << "\n  >>> KET QUA: So du cuoi cung = "
+    std::cout << "\n  " << Color::bold << ">>> KET QUA:" << Color::reset
+              << " So du cuoi cung = "
               << std::fixed << std::setprecision(2) << acct.balance << " USD";
     if (acct.balance < 0.0) {
         std::cout << Color::red << "  <-- AM! CHI TIEU KEP THANH CONG (loi bao mat!)" << Color::reset;
@@ -117,7 +118,8 @@ static void demoWithLock(Bank& bank) {
     t2.join();
 
     Money finalBal = bank.getAccount(id).balance();
-    std::cout << "\n  >>> KET QUA: So du cuoi cung = " << finalBal
+    std::cout << "\n  " << Color::bold << ">>> KET QUA:" << Color::reset
+              << " So du cuoi cung = " << finalBal
               << " | So lan rut thanh cong: " << successCount.load() << "/2\n";
     if (successCount.load() <= 1) {
         std::cout << Color::green << "  [OK] Mutex bao ve thanh cong! Chi 1 giao dich duoc chap thuan." << Color::reset << "\n";
@@ -125,16 +127,19 @@ static void demoWithLock(Bank& bank) {
 }
 
 void runDoubleSpend(Bank& bank) {
-    std::cout << "\n============================================================\n";
-    std::cout << "  DEMO: CHI TIEU KEP (Double Spending)\n";
-    std::cout << "============================================================\n";
+    std::cout << Color::bold << Color::cyan
+              << "\n============================================================\n"
+              << "  DEMO: CHI TIEU KEP (Double Spending)\n"
+              << "============================================================\n"
+              << Color::reset;
 
     demoWithoutLock();
-    std::cout << "\n  Nhan Enter de xem phien ban CO mutex...\n";
+    std::cout << Color::dim << "\n  Nhan Enter de xem phien ban CO mutex...\n" << Color::reset;
     std::cin.ignore();
     demoWithLock(bank);
 
-    std::cout << "\n  [KET LUAN] Mutex dam bao chi mot giao dich duoc xu ly\n"
+    std::cout << "\n  " << Color::bold << Color::cyan << "[KET LUAN]" << Color::reset
+              << " Mutex dam bao chi mot giao dich duoc xu ly\n"
               << "  tai mot thoi diem, ngan chan chi tieu kep.\n";
 }
 
@@ -143,9 +148,11 @@ void runDoubleSpend(Bank& bank) {
 // ─────────────────────────────────────────────────────────────
 
 void runInvalidRate(Bank& bank) {
-    std::cout << "\n============================================================\n";
-    std::cout << "  DEMO: TY GIA HOI DOAI KHONG HOP LE\n";
-    std::cout << "============================================================\n";
+    std::cout << Color::bold << Color::cyan
+              << "\n============================================================\n"
+              << "  DEMO: TY GIA HOI DOAI KHONG HOP LE\n"
+              << "============================================================\n"
+              << Color::reset;
 
     long double badRates[] = {0.0L, -1.5L, -0.001L};
 
