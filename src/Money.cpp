@@ -6,8 +6,8 @@
 
 static void assertSameCurrency(const Money& a, const Money& b) {
     if (a.currency() != b.currency())
-        throw CurrencyMismatch("Cannot mix " + currencyToString(a.currency()) +
-                               " and " + currencyToString(b.currency()));
+        throw CurrencyMismatch("Khong the tinh toan giua " + currencyToString(a.currency()) +
+                               " va " + currencyToString(b.currency()));
 }
 
 Money Money::operator+(const Money& o) const {

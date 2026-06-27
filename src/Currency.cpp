@@ -18,7 +18,7 @@ Currency currencyFromString(const std::string& s) {
     if (s == "EUR") return Currency::EUR;
     if (s == "JPY") return Currency::JPY;
     if (s == "GBP") return Currency::GBP;
-    throw InvalidInput("Unknown currency: " + s);
+    throw InvalidInput("Tien te khong hop le: " + s);
 }
 
 std::string currencySymbol(Currency c) {

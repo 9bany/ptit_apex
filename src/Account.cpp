@@ -13,17 +13,17 @@ Money Account::balance() const {
 
 void Account::doDeposit(const Money& m) {
     if (m.currency() != balance_.currency())
-        throw CurrencyMismatch("Deposit currency does not match account currency");
+        throw CurrencyMismatch("Tien te nap khong khop voi tien te tai khoan");
     if (m.amount() <= 0.0L)
-        throw InvalidInput("Deposit amount must be positive");
+        throw InvalidInput("So tien nap phai lon hon 0");
     balance_ = Money{balance_.amount() + m.amount(), balance_.currency()};
 }
 
 void Account::doWithdraw(const Money& m) {
     if (m.currency() != balance_.currency())
-        throw CurrencyMismatch("Withdraw currency does not match account currency");
+        throw CurrencyMismatch("Tien te rut khong khop voi tien te tai khoan");
     if (m.amount() <= 0.0L)
-        throw InvalidInput("Withdraw amount must be positive");
+        throw InvalidInput("So tien rut phai lon hon 0");
     checkWithdrawRules(m);
     balance_ = balance_ - m;
     onAfterWithdraw(m);
