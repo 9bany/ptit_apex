@@ -4,6 +4,7 @@
 #include <ostream>
 #include <string>
 
+// Ban ghi mot giao dich bat bien: loai, tai khoan, so tien, thoi diem.
 enum class TransactionType { Deposit, Withdraw, Transfer, RateChange, AccountCreate };
 
 std::string txTypeToString(TransactionType t);

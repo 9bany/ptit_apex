@@ -1,6 +1,7 @@
 #pragma once
 #include "apex/Bank.hpp"
 
+// Giao dien dong lenh tuong tac voi nguoi dung — dieu phoi cac lenh goi Bank.
 class Menu {
 public:
     explicit Menu(Bank& bank);

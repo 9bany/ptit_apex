@@ -2,6 +2,7 @@
 #include "apex/Currency.hpp"
 #include <string>
 
+// Cac ham doc du lieu tu stdin co kiem tra hop le — dung trong Menu.
 namespace InputUtils {
     void        clearLine();
     int         readInt(const std::string& prompt, int lo, int hi);

@@ -33,9 +33,12 @@ cmake -S . -B build && cmake --build build
 ### Nạp chồng toán tử
 
 ```cpp
-account + Money{500'000, Currency::VND};   // operator+ → nạp tiền
-account - Money{200'000, Currency::VND};   // operator- → rút tiền
+account += Money{500'000, Currency::VND};   // operator+= → nạp tiền
+account -= Money{200'000, Currency::VND};   // operator-= → rút tiền
 ```
+
+**Lý do dùng `+=/-=` thay vì `+/-`:**
+Đề bài yêu cầu nạp chồng `operator+` và `operator-`. Tuy nhiên, theo ngữ nghĩa C++ chuẩn, `x + 5` không được thay đổi `x` — toán tử nhị phân tạo ra giá trị mới, không biến đổi toán hạng trái. Ở đây `account += m` và `account -= m` biểu đạt đúng hơn ý định "biến đổi tại chỗ" (mutate in place) của thao tác nạp/rút tiền. Dự án chọn `+=/-=` để đảm bảo ngữ nghĩa nhất quán với chuẩn C++.
 
 `Bank::transfer` dùng `std::scoped_lock` trên hai mutex theo thứ tự ID để tránh deadlock, sau đó gọi `doDeposit`/`doWithdraw` (protected) của mỗi tài khoản.
 
@@ -43,8 +46,8 @@ account - Money{200'000, Currency::VND};   // operator- → rút tiền
 
 ```
  [1]  Tạo tài khoản mới
- [2]  Nạp tiền               ← hiển thị operator+
- [3]  Rút tiền               ← hiển thị operator-
+ [2]  Nạp tiền               ← dùng operator+=
+ [3]  Rút tiền               ← dùng operator-=
  [4]  Chuyển khoản           ← tự động quy đổi tiền tệ
  [5]  Xem thông tin tài khoản
  [6]  Lịch sử giao dịch (theo tài khoản)
