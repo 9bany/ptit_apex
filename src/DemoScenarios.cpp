@@ -127,7 +127,7 @@ void runDoubleSpend(Bank& bank) {
     demoWithLock(bank);
 
     std::cout << "\n  [KET LUAN] Mutex dam bao chi mot giao dich duoc xu ly\n"
-              << "  tại mot thoi diem, ngan chan chi tieu kep.\n";
+              << "  tai mot thoi diem, ngan chan chi tieu kep.\n";
 }
 
 // ─────────────────────────────────────────────────────────────

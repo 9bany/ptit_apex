@@ -12,7 +12,7 @@
 
 class Bank {
 public:
-    Bank();
+    Bank() = default;
 
     std::string createSavings(const std::string& owner, const Money& initialBalance,
                               long double interestRate, long double dailyWithdrawCap);

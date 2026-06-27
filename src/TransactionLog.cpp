@@ -1,5 +1,4 @@
 #include "apex/TransactionLog.hpp"
-#include <iostream>
 
 void TransactionLog::record(const Transaction& t) {
     std::lock_guard<std::mutex> lock(mtx_);

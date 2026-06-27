@@ -1,7 +1,6 @@
 #include "apex/CurrencyConverter.hpp"
 #include "apex/Errors.hpp"
 #include <iomanip>
-#include <iostream>
 
 CurrencyConverter::CurrencyConverter() {
     // Default rates (VND base: 1 unit = X VND)

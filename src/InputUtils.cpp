@@ -1,6 +1,7 @@
 #include "apex/InputUtils.hpp"
 #include "apex/Errors.hpp"
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 namespace InputUtils {

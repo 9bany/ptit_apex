@@ -7,6 +7,7 @@
 #include "apex/Transaction.hpp"
 #include "apex/Currency.hpp"
 #include <iostream>
+#include <limits>
 #include <string>
 
 static void sep(char c = '=', int w = 60) {
@@ -68,7 +69,7 @@ void Menu::run() {
         }
         if (std::cin.good()) {
             std::cout << "\n  Nhan Enter de tiep tuc...";
-            std::cin.ignore(1000, '\n');
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
         if (!std::cin) break;
     }

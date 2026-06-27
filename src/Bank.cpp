@@ -1,10 +1,7 @@
 #include "apex/Bank.hpp"
 #include "apex/IdGenerator.hpp"
 #include "apex/Errors.hpp"
-#include <iostream>
-#include <algorithm>
-
-Bank::Bank() {}
+#include <utility>
 
 std::string Bank::createSavings(const std::string& owner, const Money& initialBalance,
                                 long double interestRate, long double dailyWithdrawCap) {
@@ -44,16 +41,14 @@ Account& Bank::getAccount(const std::string& id) {
 
 void Bank::deposit(const std::string& id, const Money& m) {
     Account& acc = getAccount(id);
-    // operator+ performs the deposit
-    acc + m;
+    acc += m;
     log_.record(Transaction{IdGenerator::nextTransactionId(),
                             TransactionType::Deposit, id, "", m});
 }
 
 void Bank::withdraw(const std::string& id, const Money& m) {
     Account& acc = getAccount(id);
-    // operator- performs the withdrawal
-    acc - m;
+    acc -= m;
     log_.record(Transaction{IdGenerator::nextTransactionId(),
                             TransactionType::Withdraw, id, "", m});
 }
@@ -76,7 +71,7 @@ void Bank::transfer(const std::string& srcId, const std::string& dstId, const Mo
     Account* second = dstPtr.get();
     if (srcId > dstId) std::swap(first, second);
 
-    std::scoped_lock<std::mutex, std::mutex> lock(first->mutex(), second->mutex());
+    std::scoped_lock<std::mutex, std::mutex> lock(first->mtx_, second->mtx_);
 
     // Convert currency if accounts differ
     Money converted = converter_.convert(amount, dstPtr->balance_.currency());
