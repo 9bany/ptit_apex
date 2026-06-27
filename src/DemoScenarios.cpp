@@ -7,6 +7,7 @@
 #include <mutex>
 #include <string>
 #include <iomanip>
+#include <sstream>
 
 namespace DemoScenarios {
 
@@ -43,15 +44,19 @@ static void demoWithoutLock() {
               << "  ║  KHONG CO MUTEX - Hai dau cuoi cung luc rut     ║\n"
               << "  ╚══════════════════════════════════════════════════╝\n"
               << Color::reset;
+    std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
     UnsafeBalance acct;
     acct.balance  = 1000.0;
     acct.currency = "USD";
     std::cout << "  So du ban dau: " << Color::yellow << "1,000.00 USD" << Color::reset << "\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::cout << "  Hai thiet bi dau cuoi cung thu rut " << Color::yellow << "1,000.00 USD" << Color::reset << "...\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::cout << Color::dim
               << "  (Output phia duoi co the bi chen nhau — day chinh la bieu hien race condition)\n"
               << Color::reset << "\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(800));
 
     // Use a flag to sync both threads to start simultaneously
     std::atomic<bool> go{false};
@@ -68,6 +73,7 @@ static void demoWithoutLock() {
     t1.join();
     t2.join();
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(600));
     std::cout << "\n  " << Color::bold << ">>> KET QUA:" << Color::reset
               << " So du cuoi cung = "
               << std::fixed << std::setprecision(2) << acct.balance << " USD";
@@ -83,11 +89,14 @@ static void demoWithLock(Bank& bank) {
               << "  ║  CO MUTEX - He thong Apex khoa tai khoan         ║\n"
               << "  ╚══════════════════════════════════════════════════╝\n"
               << Color::reset;
+    std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
     // Create a temporary demo account with zero overdraft so the 2nd withdrawal fails
     std::string id = bank.createChecking("Demo-DoubleSpend", Money{1000.0L, Currency::USD}, 0.0L);
     std::cout << "  Tao tai khoan tam: " << id << " | So du: 1,000.00 USD\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::cout << "  Hai thiet bi dau cuoi cung thu rut 1,000.00 USD...\n\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(800));
 
     std::atomic<bool>  go{false};
     std::atomic<int>   successCount{0};
@@ -118,6 +127,7 @@ static void demoWithLock(Bank& bank) {
     t2.join();
 
     Money finalBal = bank.getAccount(id).balance();
+    std::this_thread::sleep_for(std::chrono::milliseconds(600));
     std::cout << "\n  " << Color::bold << ">>> KET QUA:" << Color::reset
               << " So du cuoi cung = " << finalBal
               << " | So lan rut thanh cong: " << successCount.load() << "/2\n";
@@ -157,7 +167,9 @@ void runInvalidRate(Bank& bank) {
     long double badRates[] = {0.0L, -1.5L, -0.001L};
 
     for (long double rate : badRates) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(800));
         std::cout << "\n  Thu dat ty gia USD -> VND = " << rate << ":\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(600));
         try {
             bank.converter().setRate(Currency::USD, Currency::VND, rate);
             std::cout << Color::red << "  [!] Khong nen den day — ty gia da duoc dat sai!" << Color::reset << "\n";
@@ -167,11 +179,19 @@ void runInvalidRate(Bank& bank) {
     }
 
     // Verify old rate is still intact
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     std::cout << "\n  Kiem tra ty gia sau cac lan thu sai:\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(600));
     try {
         long double cur = bank.converter().getRate(Currency::USD, Currency::VND);
-        std::cout << "  Ty gia USD->VND hien tai: " << std::fixed
-                  << std::setprecision(2) << cur << " (van giu nguyen)\n";
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2) << cur;
+        std::string rateStr = oss.str();
+        size_t dot = rateStr.find('.');
+        for (int ins = static_cast<int>(dot) - 3; ins > 0; ins -= 3)
+            rateStr.insert(static_cast<size_t>(ins), ",");
+        std::cout << "  Ty gia USD->VND hien tai: " << Color::yellow
+                  << rateStr << Color::reset << " (van giu nguyen)\n";
     } catch (const ApexError& e) {
         std::cout << "  Loi: " << e.what() << "\n";
     }
