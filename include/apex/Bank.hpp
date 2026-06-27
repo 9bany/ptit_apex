@@ -10,6 +10,7 @@
 #include <ostream>
 #include <string>
 
+// Facade dieu phoi toan bo nghiep vu ngan hang: tao tai khoan, giao dich, lich su.
 class Bank {
 public:
     Bank() = default;

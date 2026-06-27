@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+// Lich su giao dich toan he thong — thread-safe, tra cuu theo tai khoan.
 class TransactionLog {
 public:
     void record(const Transaction& t);

@@ -3,6 +3,7 @@
 #include <ostream>
 #include <string>
 
+// Value object bieu dien so tien va tien te — bat bien sau khi tao.
 class Money {
 public:
     Money(long double amount, Currency currency)

@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <string>
 
+// Phan cap ngoai le cua he thong: ApexError la goc, cac loai cu the ke thua tu do.
 struct ApexError : std::runtime_error {
     explicit ApexError(const std::string& msg) : std::runtime_error(msg) {}
 };

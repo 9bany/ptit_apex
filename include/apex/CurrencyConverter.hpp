@@ -5,6 +5,7 @@
 #include <ostream>
 #include <utility>
 
+// Bang ty gia va quy doi tien te — ho tro tam giac qua VND.
 class CurrencyConverter {
 public:
     CurrencyConverter();
