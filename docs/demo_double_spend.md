@@ -6,7 +6,7 @@
 
 ## Interactive visualization
 
-[Xem interactive demo →](https://htmlpreview.github.io/?https://github.com/9bany/ptit_apex/blob/master/docs/interactive.html)
+[Xem interactive demo →](https://raw.githack.com/9bany/ptit_apex/master/docs/interactive.html)
 
 Gồm hai tab:
 - **Chi tiêu kép** — switch giữa không mutex / có mutex
