@@ -31,11 +31,11 @@ add_executable(apex src/main.cpp)
 target_link_libraries(apex apex_lib)
 
 add_executable(apex_test
-    src/test_bank.cpp
-    src/test_account.cpp
-    src/test_savings.cpp
-    src/test_checking.cpp
-    src/test_transfer.cpp
+    tests/test_bank.cpp
+    tests/test_account.cpp
+    tests/test_savings.cpp
+    tests/test_checking.cpp
+    tests/test_transfer.cpp
 )
-target_include_directories(apex_test PRIVATE src)
+target_include_directories(apex_test PRIVATE tests)
 target_link_libraries(apex_test apex_lib)
