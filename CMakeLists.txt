@@ -29,3 +29,6 @@ target_link_libraries(apex_lib Threads::Threads)
 
 add_executable(apex src/main.cpp)
 target_link_libraries(apex apex_lib)
+
+add_executable(apex_test src/test_bank.cpp)
+target_link_libraries(apex_test apex_lib)
